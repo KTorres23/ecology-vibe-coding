@@ -17,18 +17,25 @@
 <body>
   <h1>Check iNaturalist Species Status</h1>
   <p>Enter species names (one per line):</p>
-  <textarea id="speciesInput" placeholder="e.g. Danaus plexippus"></textarea><br />
+  <textarea id="speciesInput" placeholder="e.g., Danaus plexippus or Monarch Butterfly"></textarea><br />
   <button onclick="checkINaturalist()">Check iNaturalist</button>
 
   <table id="resultsTable" style="display:none;">
     <thead>
       <tr>
-        <th>Observation Link</th>
-        <th>Kingdom</th>
-        <th>Phylum</th>
-        <th>Order</th>
+        <th rowspan="2">Observation Link</th>
+        <th colspan="2">Name Info</th>
+        <th rowspan="2">Observations Count</th>
+        <th colspan="2">Additional Info</th>
+        <th colspan="2">Validation Info</th>
+      </tr>
+      <tr>
         <th>Species Name</th>
-        <th>Observations Count</th>
+        <th>Common Name</th>
+        <th>iNat ID #</th>
+        <th># of Taxonomic changes</th>
+        <th>entered_term</th>
+        <th>matched_term</th>
       </tr>
     </thead>
     <tbody id="resultsBody">
@@ -42,36 +49,26 @@
 
   async function fetchSpeciesData(species) {
     try {
-      const searchUrl = `https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(species)}&per_page=1`;
+      const searchUrl = `https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(species)}&per_page=1&rank=species`;
       const response = await fetch(searchUrl);
       if (!response.ok) throw new Error(`API request failed (status ${response.status}) for species: ${species}`);
       const data = await response.json();
       if (data.results.length === 0) return null;
 
       const taxon = data.results[0];
-      const kingdom = taxon.ancestors.find(a => a.rank === "kingdom")?.name || "";
-      const phylum = taxon.ancestors.find(a => a.rank === "phylum")?.name || "";
-      const order = taxon.ancestors.find(a => a.rank === "order")?.name || "";
-      const name = taxon.preferred_common_name || taxon.name;
-
-      // Fetch observations count with error catch
-      let observationsCount = 0;
-      try {
-        const countUrl = `https://api.inaturalist.org/v1/observations/species_counts?taxon_id=${taxon.id}&per_page=1`;
-        const countResp = await fetch(countUrl);
-        if (countResp.ok) {
-          const countData = await countResp.json();
-          observationsCount = countData.total_results || 0;
-        } else {
-          console.warn(`Observation count fetch failed for species: ${species}, status: ${countResp.status}`);
-        }
-      } catch (countError) {
-        console.warn(`Observation count fetch error for species: ${species}`, countError);
-      }
+      const ancestors = Array.isArray(taxon.ancestors) ? taxon.ancestors : [];
+      const observationsCount = taxon.observations_count.toLocaleString("en-US") || NA;
+      
+      const matchedTerm = taxon.matched_term || NA;
+      const sppName = taxon.name || NA;
+      const commonName = taxon.preferred_common_name;
+      const idNum = taxon.id;
+      const taxChanges = taxon.taxon_changes_count;
+      const enteredTerm = species;
 
       const obsLink = `https://www.inaturalist.org/observations?taxon_id=${taxon.id}`;
 
-      return { obsLink, kingdom, phylum, order, name, observationsCount };
+      return { obsLink, name, observationsCount, matchedTerm, sppName, commonName, idNum, taxChanges, enteredTerm };
     } catch (err) {
       console.error(`Error fetching data for species "${species}": `, err);
       throw err;
@@ -101,11 +98,13 @@
           tbody.innerHTML += `
             <tr>
               <td><a href="${data.obsLink}" target="_blank" rel="noopener noreferrer">View Observations</a></td>
-              <td>${data.kingdom}</td>
-              <td>${data.phylum}</td>
-              <td>${data.order}</td>
-              <td>${data.name}</td>
+              <td>${data.sppName}</td>
+              <td>${data.commonName}</td>
               <td>${data.observationsCount}</td>
+              <td>${data.idNum}</td>
+              <td>${data.taxChanges}</td>
+              <td>${data.matchedTerm}</td>
+              <td>${data.enteredTerm}</td>
             </tr>`;
         }
       } catch {
