@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Check iNaturalist Species Status</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px;}
+    textarea { width: 100%; height: 150px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background-color: #f2f2f2; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Check iNaturalist Species Status</h1>
+  <p>Enter species names (one per line):</p>
+  <textarea id="speciesInput" placeholder="e.g. Danaus plexippus"></textarea><br />
+  <button onclick="checkINaturalist()">Check iNaturalist</button>
+
+  <table id="resultsTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Observation Link</th>
+        <th>Kingdom</th>
+        <th>Phylum</th>
+        <th>Order</th>
+        <th>Species Name</th>
+        <th>Observations Count</th>
+      </tr>
+    </thead>
+    <tbody id="resultsBody">
+    </tbody>
+  </table>
+
+  <script>
+    async function fetchSpeciesData(species) {
+      // Query iNaturalist taxa search API for the species name
+      const url = `https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(species)}&per_page=1`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`API request failed for species: ${species}`);
+      }
+      const data = await response.json();
+      if (data.results.length === 0) {
+        return null; // species not found
+      }
+      const taxon = data.results[0];
+
+      // Get species info
+      const kingdom = taxon.ancestors.find(a => a.rank === "kingdom")?.name || "";
+      const phylum = taxon.ancestors.find(a => a.rank === "phylum")?.name || "";
+      const order = taxon.ancestors.find(a => a.rank === "order")?.name || "";
+
+      // Get species name (preferred common name or scientific)
+      const name = taxon.preferred_common_name || taxon.name;
+
+      // Use taxon.id to get observations count (species_count endpoint)
+      // This requires another API call:
+      // https://api.inaturalist.org/v1/observations/species_counts?taxon_id=taxon.id&per_page=1
+      const countUrl = `https://api.inaturalist.org/v1/observations/species_counts?taxon_id=${taxon.id}&per_page=1`;
+      const countResp = await fetch(countUrl);
+      if (!countResp.ok) {
+        throw new Error('Failed to fetch observations count');
+      }
+      const countData = await countResp.json();
+      const observationsCount = countData.total_results || 0;
+
+      // Provide a link to observations for this species on iNaturalist
+      const obsLink = `https://www.inaturalist.org/observations?taxon_id=${taxon.id}`;
+
+      return { obsLink, kingdom, phylum, order, name, observationsCount };
+    }
+
+    async function checkINaturalist() {
+      const input = document.getElementById("speciesInput").value.trim();
+      const speciesList = input.split("\n").map(s => s.trim()).filter(s => s.length > 0);
+      const table = document.getElementById("resultsTable");
+      const tbody = document.getElementById("resultsBody");
+
+      tbody.innerHTML = ""; // clear previous results
+
+      if (speciesList.length === 0) {
+        alert("Please enter at least one species name.");
+        table.style.display = "none";
+        return;
+      }
+
+      table.style.display = "table";
+
+      for (const species of speciesList) {
+        try {
+          const data = await fetchSpeciesData(species);
+          if (data === null) {
+            tbody.innerHTML += `<tr><td colspan="6">Species not found: ${species}</td></tr>`;
+          } else {
+            tbody.innerHTML += `
+              <tr>
+                <td><a href="${data.obsLink}" target="_blank" rel="noopener noreferrer">View Observations</a></td>
+                <td>${data.kingdom}</td>
+                <td>${data.phylum}</td>
+                <td>${data.order}</td>
+                <td>${data.name}</td>
+                <td>${data.observationsCount}</td>
+              </tr>`;
+          }
+        } catch (error) {
+          tbody.innerHTML += `<tr><td colspan="6">Error checking species: ${species}</td></tr>`;
+          console.error(error);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
