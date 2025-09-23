@@ -36,82 +36,87 @@
   </table>
 
   <script>
-    async function fetchSpeciesData(species) {
-      // Query iNaturalist taxa search API for the species name
-      const url = `https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(species)}&per_page=1`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`API request failed for species: ${species}`);
-      }
-      const data = await response.json();
-      if (data.results.length === 0) {
-        return null; // species not found
-      }
-      const taxon = data.results[0];
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
-      // Get species info
+  async function fetchSpeciesData(species) {
+    try {
+      const searchUrl = `https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(species)}&per_page=1`;
+      const response = await fetch(searchUrl);
+      if (!response.ok) throw new Error(`API request failed (status ${response.status}) for species: ${species}`);
+      const data = await response.json();
+      if (data.results.length === 0) return null;
+
+      const taxon = data.results[0];
       const kingdom = taxon.ancestors.find(a => a.rank === "kingdom")?.name || "";
       const phylum = taxon.ancestors.find(a => a.rank === "phylum")?.name || "";
       const order = taxon.ancestors.find(a => a.rank === "order")?.name || "";
-
-      // Get species name (preferred common name or scientific)
       const name = taxon.preferred_common_name || taxon.name;
 
-      // Use taxon.id to get observations count (species_count endpoint)
-      // This requires another API call:
-      // https://api.inaturalist.org/v1/observations/species_counts?taxon_id=taxon.id&per_page=1
-      const countUrl = `https://api.inaturalist.org/v1/observations/species_counts?taxon_id=${taxon.id}&per_page=1`;
-      const countResp = await fetch(countUrl);
-      if (!countResp.ok) {
-        throw new Error('Failed to fetch observations count');
+      // Fetch observations count with error catch
+      let observationsCount = 0;
+      try {
+        const countUrl = `https://api.inaturalist.org/v1/observations/species_counts?taxon_id=${taxon.id}&per_page=1`;
+        const countResp = await fetch(countUrl);
+        if (countResp.ok) {
+          const countData = await countResp.json();
+          observationsCount = countData.total_results || 0;
+        } else {
+          console.warn(`Observation count fetch failed for species: ${species}, status: ${countResp.status}`);
+        }
+      } catch (countError) {
+        console.warn(`Observation count fetch error for species: ${species}`, countError);
       }
-      const countData = await countResp.json();
-      const observationsCount = countData.total_results || 0;
 
-      // Provide a link to observations for this species on iNaturalist
       const obsLink = `https://www.inaturalist.org/observations?taxon_id=${taxon.id}`;
 
       return { obsLink, kingdom, phylum, order, name, observationsCount };
+    } catch (err) {
+      console.error(`Error fetching data for species "${species}": `, err);
+      throw err;
     }
+  }
 
-    async function checkINaturalist() {
-      const input = document.getElementById("speciesInput").value.trim();
-      const speciesList = input.split("\n").map(s => s.trim()).filter(s => s.length > 0);
-      const table = document.getElementById("resultsTable");
-      const tbody = document.getElementById("resultsBody");
+  async function checkINaturalist() {
+    const input = document.getElementById("speciesInput").value.trim();
+    const speciesList = input.split("\n").map(s => s.trim()).filter(s => s.length > 0);
+    const table = document.getElementById("resultsTable");
+    const tbody = document.getElementById("resultsBody");
 
-      tbody.innerHTML = ""; // clear previous results
+    tbody.innerHTML = "";
+    if (speciesList.length === 0) {
+      alert("Please enter at least one species name.");
+      table.style.display = "none";
+      return;
+    }
+    table.style.display = "table";
 
-      if (speciesList.length === 0) {
-        alert("Please enter at least one species name.");
-        table.style.display = "none";
-        return;
-      }
-
-      table.style.display = "table";
-
-      for (const species of speciesList) {
-        try {
-          const data = await fetchSpeciesData(species);
-          if (data === null) {
-            tbody.innerHTML += `<tr><td colspan="6">Species not found: ${species}</td></tr>`;
-          } else {
-            tbody.innerHTML += `
-              <tr>
-                <td><a href="${data.obsLink}" target="_blank" rel="noopener noreferrer">View Observations</a></td>
-                <td>${data.kingdom}</td>
-                <td>${data.phylum}</td>
-                <td>${data.order}</td>
-                <td>${data.name}</td>
-                <td>${data.observationsCount}</td>
-              </tr>`;
-          }
-        } catch (error) {
-          tbody.innerHTML += `<tr><td colspan="6">Error checking species: ${species}</td></tr>`;
-          console.error(error);
+    for (const species of speciesList) {
+      try {
+        const data = await fetchSpeciesData(species);
+        if (data === null) {
+          tbody.innerHTML += `<tr><td colspan="6">Species not found: ${species}</td></tr>`;
+        } else {
+          tbody.innerHTML += `
+            <tr>
+              <td><a href="${data.obsLink}" target="_blank" rel="noopener noreferrer">View Observations</a></td>
+              <td>${data.kingdom}</td>
+              <td>${data.phylum}</td>
+              <td>${data.order}</td>
+              <td>${data.name}</td>
+              <td>${data.observationsCount}</td>
+            </tr>`;
         }
+      } catch {
+        tbody.innerHTML += `<tr><td colspan="6">Error checking species: ${species}</td></tr>`;
       }
+
+      // Pause 300ms between requests to prevent flooding API
+      await sleep(300);
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>
