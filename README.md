@@ -1,8 +1,9 @@
-# iNat-query
+# ecology vibe coding
 
-Purpose: extract basic info on taxon via iNaturalist API on a static HTML page
-
-Base script generated with [perplexity.ai](https://www.perplexity.ai/) and manually fine-tuned to produce additional output parameters
+## Projects
+* iNat query
+    * Purpose: extract basic info on taxon via iNaturalist API on a static HTML page
+    * Base script generated with [perplexity.ai](https://www.perplexity.ai/) and manually fine-tuned to produce additional output parameters
 
 ---
 **Contact:** Karina Torres ([karina.torres@siu.edu](mailto:karina.torres@siu.edu))  

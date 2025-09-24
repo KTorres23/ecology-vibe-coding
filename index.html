@@ -3,119 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Check iNaturalist Species Status</title>
+  <title>Ecology Vibe Coding Projects</title>
+
+  <!-- Main Site Styling -->
+  <link rel="stylesheet" href="main.css" />
+
+  <!-- Specific styling for index.html -->
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px;}
-    textarea { width: 100%; height: 150px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background-color: #f2f2f2; }
-    a { color: #0366d6; text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    /* Project Box Styling */
+      .projects-box {
+      background: #ede5da;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 131, 143, 0.10);
+      padding: 2rem;
+      max-width: 500px;
+      margin: auto;
+      border: 1px solid #7d5a3e73;
+      text-align: center;
+    }
+    .project-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .project-item {
+      background: #f0ede9;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 131, 143, 0.08);
+      padding: 1.2rem 1.5rem;
+      border: 1px solid #7d5a3e73;
+      transition: background 0.2s, transform 0.2s;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: #6c0633;
+    }
+    .project-item:hover {
+      background: #fff;
+      transform: scale(1.05);
+      z-index: 1;
+    }
+
+
+    
   </style>
 </head>
+
 <body>
-  <h1>Check iNaturalist Species Status</h1>
-  <p>Enter species names (one per line):</p>
-  <textarea id="speciesInput" placeholder="e.g., Danaus plexippus or Monarch Butterfly"></textarea><br />
-  <button onclick="checkINaturalist()">Check iNaturalist</button>
+  <!-- Sidebar icon -->
+  <div class="sidebar_icon" id="sidebarToggle" title="Open sidebar">
+    <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="2"/><rect x="4" y="11" width="16" height="2"/><rect x="4" y="16" width="16" height="2"/></svg>
+  </div>
+  <!-- Sidebar content -->
+  <div class="sidebar_box" id="sidebar">
+      <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="inat_query.html">iNaturalist Query Tool</a></li>
+          <li><a href="#">More projects soon</a></li>
+      </ul>
+  </div>
+  <!-- Site header -->
+  <header>
+    <h1>Ecology Vibe Coding Projects</h1>
+  </header>
 
-  <table id="resultsTable" style="display:none;">
-    <thead>
-      <tr>
-        <th rowspan="2">Observation Link</th>
-        <th colspan="2">Name Info</th>
-        <th rowspan="2">Observations Count</th>
-        <th colspan="2">Additional Info</th>
-        <th colspan="2">Validation Info</th>
-      </tr>
-      <tr>
-        <th>Species Name</th>
-        <th>Common Name</th>
-        <th>iNat ID #</th>
-        <th># of Taxonomic changes</th>
-        <th>entered_term</th>
-        <th>matched_term</th>
-      </tr>
-    </thead>
-    <tbody id="resultsBody">
-    </tbody>
-  </table>
+  <!-- Main Site content -->
+  <main style="flex: 1 0 auto;">
+    <div class="projects-box">
+      <h2>List of Projects</h2>
+      <p>Click on a project below to explore simple tools created by vibe coding for ecological research.</p>
+      <ul class="project-list">
+        <li class="project-item" onclick="location.href='inat_query.html'" tabindex="0" role="link" aria-label="iNaturalist Query Tool">iNaturalist Query Tool</li>
+        <li class="project-item"><i>More projects coming soon...</i></li>
+        <li class="project-item" onclick="location.href='template.html'" tabindex="0" role="link" aria-label="template">template</li>
 
-  <script>
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
+      </ul>
+    </div>
+  </main>
+  
+  <script src="sidebar.js"></script>
 
-  async function fetchSpeciesData(species) {
-    try {
-      const searchUrl = `https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(species)}&per_page=1&rank=species`;
-      const response = await fetch(searchUrl);
-      if (!response.ok) throw new Error(`API request failed (status ${response.status}) for species: ${species}`);
-      const data = await response.json();
-      if (data.results.length === 0) return null;
-
-      const taxon = data.results[0];
-      const ancestors = Array.isArray(taxon.ancestors) ? taxon.ancestors : [];
-      const observationsCount = taxon.observations_count.toLocaleString("en-US") || NA;
-      
-      const matchedTerm = taxon.matched_term || NA;
-      const sppName = taxon.name || NA;
-      const commonName = taxon.preferred_common_name;
-      const idNum = taxon.id;
-      const taxChanges = taxon.taxon_changes_count;
-      const enteredTerm = species;
-
-      const obsLink = `https://www.inaturalist.org/observations?taxon_id=${taxon.id}`;
-
-      return { obsLink, name, observationsCount, matchedTerm, sppName, commonName, idNum, taxChanges, enteredTerm };
-    } catch (err) {
-      console.error(`Error fetching data for species "${species}": `, err);
-      throw err;
-    }
-  }
-
-  async function checkINaturalist() {
-    const input = document.getElementById("speciesInput").value.trim();
-    const speciesList = input.split("\n").map(s => s.trim()).filter(s => s.length > 0);
-    const table = document.getElementById("resultsTable");
-    const tbody = document.getElementById("resultsBody");
-
-    tbody.innerHTML = "";
-    if (speciesList.length === 0) {
-      alert("Please enter at least one species name.");
-      table.style.display = "none";
-      return;
-    }
-    table.style.display = "table";
-
-    for (const species of speciesList) {
-      try {
-        const data = await fetchSpeciesData(species);
-        if (data === null) {
-          tbody.innerHTML += `<tr><td colspan="6">Species not found: ${species}</td></tr>`;
-        } else {
-          tbody.innerHTML += `
-            <tr>
-              <td><a href="${data.obsLink}" target="_blank" rel="noopener noreferrer">View Observations</a></td>
-              <td>${data.sppName}</td>
-              <td>${data.commonName}</td>
-              <td>${data.observationsCount}</td>
-              <td>${data.idNum}</td>
-              <td>${data.taxChanges}</td>
-              <td>${data.matchedTerm}</td>
-              <td>${data.enteredTerm}</td>
-            </tr>`;
-        }
-      } catch {
-        tbody.innerHTML += `<tr><td colspan="6">Error checking species: ${species}</td></tr>`;
-      }
-
-      // Pause 300ms between requests to prevent flooding API
-      await sleep(300);
-    }
-  }
-</script>
-
+  <footer class="footer" style="flex-shrink: 0;">
+    <span>Connect via </span>
+    <a href="https://github.com/KTorres23" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://www.linkedin.com/in/karina-torres-828175299/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://scholar.google.com/citations?user=vulOb8MAAAAJ&hl=en&oi=ao" target="_blank" rel="noopener">Scholar</a>
+  </footer>
 </body>
+
+
+
 </html>

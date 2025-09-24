@@ -1,0 +1,57 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Check iNaturalist Species Status</title>
+
+    <!-- Main Site Styling -->
+    <link rel="stylesheet" href="main.css" />
+ 
+    <!-- Specific styling for inat_query.html -->
+  <style>
+    /* Form and Table Styling */
+    textarea { width: 100%; height: 150px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background-color: #f2f2f2; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+  </style>
+</head>
+<body>
+    <header>
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Ecology Vibe Coding Projects</a></h1>
+    </header>
+  <h1>Check iNaturalist Species Status</h1>
+  <p>Enter species names (one per line):</p>
+  <textarea id="speciesInput" placeholder="e.g., Danaus plexippus or Monarch Butterfly"></textarea><br />
+  <button onclick="checkINaturalist()">Check iNaturalist</button>
+
+  <table id="resultsTable" style="display:none;">
+    <thead>
+      <tr>
+        <th rowspan="2">Observation Link</th>
+        <th colspan="2">Name Info</th>
+        <th rowspan="2">Observations Count</th>
+        <th colspan="2">Additional Info</th>
+        <th colspan="2">Validation Info</th>
+      </tr>
+      <tr>
+        <th>Species Name</th>
+        <th>Common Name</th>
+        <th>iNat ID #</th>
+        <th># of Taxonomic changes</th>
+        <th>entered_term</th>
+        <th>matched_term</th>
+      </tr>
+    </thead>
+    <tbody id="resultsBody">
+    </tbody>
+  </table>
+
+    <footer style="text-align: center; margin: 20px 0; font-size: 0.9em; color: #555;">
+        <p>Created by <a href="https://ecologyvibe.com" target="_blank" rel="noopener">Ecology Vibe</a></p>
+
+ <script src="inat_query.js"></script>
+
+</body>
