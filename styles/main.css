@@ -122,3 +122,74 @@ body {
 .sidebar_box.open ~ body {
     margin-left: 250px;
 }
+
+/* Jobs grid and card styles */
+.jobs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    align-items: start;
+    margin-top: 1.5rem;
+}
+
+.job-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 6px 18px rgba(20,20,20,0.06);
+    text-align: left;
+    border: 1px solid rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.job-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.05rem;
+}
+
+.job-card h3 a {
+    color: #2b2b2b;
+    text-decoration: none;
+}
+.job-card h3 a:hover {
+    color: #6c0633;
+    text-decoration: underline;
+}
+
+.job-location {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.job-description {
+    flex: 1 0 auto;
+    color: #333;
+    margin-bottom: 0.75rem;
+}
+
+.job-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.job-apply {
+    background: #6c0633;
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+}
+.job-apply:hover {
+    background: #5a0529;
+}
+
+/* Small screen tweaks */
+@media (max-width: 520px) {
+    .jobs-grid {
+        grid-template-columns: 1fr;
+    }
+}
