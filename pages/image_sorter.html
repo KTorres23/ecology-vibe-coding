@@ -71,6 +71,18 @@ categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no
     <button onclick="downloadCSV()" style="background-color: #28a745; color: white;">Download Annotated CSV</button>
     </div>
 
+    <div id="progressSummary" style="text-align: center; margin-bottom: 10px; font-weight: bold; color: #555;">
+    </div>
+
+<div id="paginationContainer" style="display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; flex-wrap: wrap;">
+    </div>
+
+<div style="text-align: center; margin-bottom: 20px;">
+    <label for="pageJumpInput">Jump to page: </label>
+    <input type="number" id="pageJumpInput" min="1" style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+    <button onclick="window.jumpToPage()" style="padding: 5px 15px; cursor: pointer; background: #eee; border: 1px solid #ccc; border-radius: 4px;">Go</button>
+</div>
+
     <table id="resultsTable" style="display:none;">
         <thead>
             <tr>
@@ -87,10 +99,21 @@ categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no
             </tbody>
     </table>
 
-    <div style="margin: 20px 0; display: flex; gap: 10px; align-items: center;">
+    <!-- <div style="margin: 20px 0; display: flex; gap: 10px; align-items: center;">
     <button onclick="window.changePage('prev')">← Previous 10</button>
     <span id="pageDisplay">Page Controls</span>
-    <button onclick="window.changePage('next')">Next 10 →</button>
+    <button onclick="window.changePage('next')">Next 10 →</button> -->
+
+    <!-- navigation buttons -->
+     <!-- <div style="text-align: center; margin-top: 10px;">
+    <label for="pageJumpInput">Jump to page: </label>
+    <input type="number" id="pageJumpInput" min="1" style="width: 60px; padding: 5px;">
+    <button onclick="window.jumpToPage()" style="padding: 5px 10px;">Go</button>
+</div> -->
+    <!-- <div id="paginationContainer" style="margin: 20px 0; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; justify-content: center;">
+    </div>
+    <div id="progressSummary" style="text-align: center; color: #666; font-size: 0.9em; margin-bottom: 10px;">
+    </div> -->
 </div>
 </main>
 
