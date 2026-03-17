@@ -56,9 +56,10 @@ categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no
     <!-- Page specific functionality -->
      <main>
     <h1>iNaturalist Image Annotator</h1>
-    <p>Enter species names or IDs to fetch images for annotation:</p>
-    <textarea id="speciesInput" placeholder="e.g., Danaus plexippus"></textarea><br />
+    <p>Enter taxon names or IDs to fetch images for annotation:</p>
+    <textarea id="speciesInput" placeholder="e.g., `Danaus plexippus` or `Animalia`"></textarea><br />
     
+    <!-- Blacklist observation IDs that have already been annotated previously -->
     <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
         <h3>Resume Session</h3>
         <p style="font-size: 0.9em; color: #666;">Upload your previous CSV to skip IDs you've already annotated:</p>
@@ -66,29 +67,59 @@ categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no
         <p id="uploadStatus" style="font-size: 0.8em; color: green; font-weight: bold;"></p>
     </div>
 
+    <!-- Filter options for searching observations -->
+    <div style="background: #eef2f3; padding: 15px; border-radius: 8px; border: 1px solid #d1d8dd; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+    
+    <div>
+        <label style="display:block; font-size: 0.8em; font-weight: bold;">Observer Username:</label>
+        <input type="text" id="userFilter" placeholder="e.g., `kmtorres`" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+    </div>
+
+    <div>
+        <label style="display:block; font-size: 0.8em; font-weight: bold;">Quality Grade:</label>
+        <select id="qualityFilter" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+            <option value="any">Any</option>
+            <option value="research">Research Grade Only</option>
+            <option value="needs_id">Needs ID</option>
+            <option value="casual">Casual</option>
+        </select>
+    </div>
+
+    <div>
+        <label style="display:block; font-size: 0.8em; font-weight: bold;">Observed After (Date):</label>
+        <input type="date" id="dateFilter" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+    </div>
+
+</div>
+
+    <!-- Search for observations -->
     <div style="margin: 10px 0;">
     <button onclick="window.checkINaturalist()">Fetch Observations</button>
     <button onclick="downloadCSV()" style="background-color: #28a745; color: white;">Download Annotated CSV</button>
     </div>
 
+
+    <!-- Navigation buttons -->
     <div id="progressSummary" style="text-align: center; margin-bottom: 10px; font-weight: bold; color: #555;">
     </div>
 
-<div id="paginationContainer" style="display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; flex-wrap: wrap;">
+    <div id="paginationContainer" style="display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; flex-wrap: wrap;">
+        </div>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+        <label for="pageJumpInput">Jump to page: </label>
+        <input type="number" id="pageJumpInput" min="1" style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+        <button onclick="window.jumpToPage()" style="padding: 5px 15px; cursor: pointer; background: #eee; border: 1px solid #ccc; border-radius: 4px;">Go</button>
     </div>
 
-<div style="text-align: center; margin-bottom: 20px;">
-    <label for="pageJumpInput">Jump to page: </label>
-    <input type="number" id="pageJumpInput" min="1" style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
-    <button onclick="window.jumpToPage()" style="padding: 5px 15px; cursor: pointer; background: #eee; border: 1px solid #ccc; border-radius: 4px;">Go</button>
-</div>
+    <!-- Observation results data -->
 
     <table id="resultsTable" style="display:none;">
         <thead>
             <tr>
                 <th>Image Preview</th>
                 <th>iNat Link</th>
-                <th>Species Name</th>
+                <th>Taxon Name</th>
                 <th>Life Stage</th>
                 <th>Status</th>
                 <th>Environment</th>
@@ -99,21 +130,6 @@ categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no
             </tbody>
     </table>
 
-    <!-- <div style="margin: 20px 0; display: flex; gap: 10px; align-items: center;">
-    <button onclick="window.changePage('prev')">← Previous 10</button>
-    <span id="pageDisplay">Page Controls</span>
-    <button onclick="window.changePage('next')">Next 10 →</button> -->
-
-    <!-- navigation buttons -->
-     <!-- <div style="text-align: center; margin-top: 10px;">
-    <label for="pageJumpInput">Jump to page: </label>
-    <input type="number" id="pageJumpInput" min="1" style="width: 60px; padding: 5px;">
-    <button onclick="window.jumpToPage()" style="padding: 5px 10px;">Go</button>
-</div> -->
-    <!-- <div id="paginationContainer" style="margin: 20px 0; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; justify-content: center;">
-    </div>
-    <div id="progressSummary" style="text-align: center; color: #666; font-size: 0.9em; margin-bottom: 10px;">
-    </div> -->
 </div>
 </main>
 

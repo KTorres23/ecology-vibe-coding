@@ -51,7 +51,29 @@
         table.style.display = "table";
 
         try {
-            const url = `https://api.inaturalist.org/v1/observations?taxon_id=${currentTaxonId}&per_page=${perPage}&page=${currentPage}&order=desc&order_by=created_at`;
+
+            // 1. Get filter values from the HTML
+            const user = document.getElementById("userFilter").value.trim();
+            const quality = document.getElementById("qualityFilter").value;
+            const date = document.getElementById("dateFilter").value;
+
+            // 2. Build the Base URL
+            let url = `https://api.inaturalist.org/v1/observations?taxon_id=${currentTaxonId}&per_page=${perPage}&page=${currentPage}&order=desc&order_by=created_at`;
+
+            // 3. Append Filters if they exist
+            if (user) {
+                url += `&user_id=${encodeURIComponent(user)}`;
+            }
+            if (quality !== "any") {
+                url += `&quality_grade=${quality}`;
+            }
+            if (date) {
+                url += `&d1=${date}`; // d1 is the iNat API parameter for "Observed On or After"
+            }
+
+            console.log("Fetching with filters:", url);
+
+            // const url = `https://api.inaturalist.org/v1/observations?taxon_id=${currentTaxonId}&per_page=${perPage}&page=${currentPage}&order=desc&order_by=created_at`;
             const obsRes = await fetch(url);
             const obsData = await obsRes.json();
 
