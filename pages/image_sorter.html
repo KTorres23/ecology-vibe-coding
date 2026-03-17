@@ -1,0 +1,151 @@
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Annotate iNat images</title>
+
+  <!-- Main Site Styling -->
+  <link rel="stylesheet" href="../styles/main.css" />
+ 
+  <!-- Specific styling for this .html -->
+  <style>
+  /* Form and Table Styling */
+    textarea { width: 100%; height: 150px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background-color: #f2f2f2; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+
+</head>
+
+<!-- I'd like to try and build an R Shiny app that pulls observation data from
+the iNaturalist API and lets me manually annotate the image with custom
+categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no road",
+ similar to the annotation functionality that already exists in iNaturalist. 
+ However, in this case, the observation ID, my annotations, and other observational
+ metadata get added to a CSV where the classification labels I make for each image
+ get added to a CSV file on my computer. -->
+
+
+ <!-- Site Content -->
+<body>
+    
+    <!-- Sidebar icon -->
+    <div class="sidebar_icon" id="sidebarToggle" title="Open sidebar">
+        <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="2"/><rect x="4" y="11" width="16" height="2"/><rect x="4" y="16" width="16" height="2"/></svg>
+    </div>
+
+    
+    <!-- Sidebar content -->
+    <div class="sidebar_box" id="sidebar">
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="inat_query.html">iNaturalist Query Tool</a></li>
+            <li><a href="#">More projects soon</a></li>
+        </ul>
+    </div>
+
+
+    <!-- Site header -->
+    <header>
+        <h1>Ecology Vibe Coding Projects</h1>
+    </header>
+ 
+
+    <!-- Page specific functionality -->
+     <main>
+    <h1>iNaturalist Image Annotator</h1>
+    <p>Enter species names or IDs to fetch images for annotation:</p>
+    <textarea id="speciesInput" placeholder="e.g., Danaus plexippus"></textarea><br />
+    
+    <div style="margin: 10px 0;">
+        <button onclick="checkINaturalist()">Fetch Observations</button>
+        <button onclick="downloadCSV()" style="background-color: #28a745; color: white;">Download Annotated CSV</button>
+    </div>
+
+    <table id="resultsTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>Image Preview</th>
+                <th>iNat Link</th>
+                <th>Species Name</th>
+                <th>Life Stage</th>
+                <th>Status</th>
+                <th>Environment</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="resultsBody">
+            </tbody>
+    </table>
+</main>
+
+<script>
+    // This array will hold your data while the page is open
+    let annotationData = [];
+
+    function addAnnotation(id, species, common) {
+        // Grab values from the specific row's inputs
+        const stage = document.getElementById(`stage-${id}`).value;
+        const status = document.getElementById(`status-${id}`).value;
+        const road = document.getElementById(`road-${id}`).checked ? "Road" : "No Road";
+
+        const entry = {
+            observation_id: id,
+            scientific_name: species,
+            common_name: common,
+            life_stage: stage,
+            status: status,
+            environment: road,
+            timestamp: new Date().toISOString()
+        };
+
+        // Update if exists, otherwise push
+        const index = annotationData.findIndex(item => item.observation_id === id);
+        if (index > -1) {
+            annotationData[index] = entry;
+        } else {
+            annotationData.push(entry);
+        }
+        
+        alert(`Saved annotation for Obs #${id}`);
+    }
+
+    function downloadCSV() {
+        if (annotationData.length === 0) {
+            alert("No annotations to save yet!");
+            return;
+        }
+
+        const headers = Object.keys(annotationData[0]).join(",");
+        const rows = annotationData.map(obj => 
+            Object.values(obj).map(val => `"${val}"`).join(",")
+        );
+        
+        const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "inat_annotations.csv");
+        document.body.appendChild(link);
+        link.click();
+    }
+</script>
+
+
+    <!-- Page Footer -->
+    <footer class="footer" style="flex-shrink: 0;">
+        <span>Connect via </span>
+        <a href="https://github.com/KTorres23" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/karina-torres-828175299/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://scholar.google.com/citations?user=vulOb8MAAAAJ&hl=en&oi=ao" target="_blank" rel="noopener">Scholar</a>
+    </footer>
+
+  <!-- Script for sidebar functionality -->
+  <script src="../scripts/sidebar.js"></script>
+
+  <!-- Script for iNaturalist query functionality -->
+  <script src="../scripts/inat_annotator.js"></script>
+
+</body>
