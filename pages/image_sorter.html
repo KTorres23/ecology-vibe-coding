@@ -59,6 +59,13 @@ categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no
     <p>Enter species names or IDs to fetch images for annotation:</p>
     <textarea id="speciesInput" placeholder="e.g., Danaus plexippus"></textarea><br />
     
+    <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
+        <h3>Resume Session</h3>
+        <p style="font-size: 0.9em; color: #666;">Upload your previous CSV to skip IDs you've already annotated:</p>
+        <input type="file" id="csvUpload" accept=".csv" onchange="window.uploadPreviousData(event)">
+        <p id="uploadStatus" style="font-size: 0.8em; color: green; font-weight: bold;"></p>
+    </div>
+
     <div style="margin: 10px 0;">
     <button onclick="window.checkINaturalist()">Fetch Observations</button>
     <button onclick="downloadCSV()" style="background-color: #28a745; color: white;">Download Annotated CSV</button>
@@ -81,9 +88,9 @@ categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no
     </table>
 
     <div style="margin: 20px 0; display: flex; gap: 10px; align-items: center;">
-    <button onclick="changePage('prev')" style="padding: 10px;">← Previous 10</button>
+    <button onclick="window.changePage('prev')">← Previous 10</button>
     <span id="pageDisplay">Page Controls</span>
-    <button onclick="changePage('next')" style="padding: 10px;">Next 10 →</button>
+    <button onclick="window.changePage('next')">Next 10 →</button>
 </div>
 </main>
 
