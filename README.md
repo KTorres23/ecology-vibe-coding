@@ -10,7 +10,7 @@ A goofy little repo hosted as a [webpage](https://ktorres23.github.io/ecology-vi
     * **Purpose**: Condense jobs from Texas AM natural resource job board
 * [iNaturalist Annotator Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/image_sorter.html)
     * Main prompt:
-        > I'd like to try and build an R Shiny app that pulls observation data from the iNaturalist API and lets me manually annotate the image with custom categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no road", similar to the annotation functionality that already exists in iNaturalist. However, in this case, the observation ID, my annotations, and other observational metadata get added to a CSV where the classification labels I make for each image get added to a CSV file on my computer.
+        > I'd like to try and build an app that pulls observation data from the iNaturalist API and lets me manually annotate the image with custom categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no road", similar to the annotation functionality that already exists in iNaturalist. However, in this case, the observation ID, my annotations, and other observational metadata get added to a CSV where the classification labels I make for each image get added to a CSV file on my computer.
     * Additional functionalities added:
         * navigation
         * filtering observations
