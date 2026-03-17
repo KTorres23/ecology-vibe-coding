@@ -81,57 +81,6 @@ categories like "alive"/"dead" or "juvenile"/"adult" or "road in background"/"no
     </table>
 </main>
 
-<script>
-    // This array will hold your data while the page is open
-    let annotationData = [];
-
-    function addAnnotation(id, species, common) {
-        // Grab values from the specific row's inputs
-        const stage = document.getElementById(`stage-${id}`).value;
-        const status = document.getElementById(`status-${id}`).value;
-        const road = document.getElementById(`road-${id}`).checked ? "Road" : "No Road";
-
-        const entry = {
-            observation_id: id,
-            scientific_name: species,
-            common_name: common,
-            life_stage: stage,
-            status: status,
-            environment: road,
-            timestamp: new Date().toISOString()
-        };
-
-        // Update if exists, otherwise push
-        const index = annotationData.findIndex(item => item.observation_id === id);
-        if (index > -1) {
-            annotationData[index] = entry;
-        } else {
-            annotationData.push(entry);
-        }
-        
-        alert(`Saved annotation for Obs #${id}`);
-    }
-
-    function downloadCSV() {
-        if (annotationData.length === 0) {
-            alert("No annotations to save yet!");
-            return;
-        }
-
-        const headers = Object.keys(annotationData[0]).join(",");
-        const rows = annotationData.map(obj => 
-            Object.values(obj).map(val => `"${val}"`).join(",")
-        );
-        
-        const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "inat_annotations.csv");
-        document.body.appendChild(link);
-        link.click();
-    }
-</script>
 
 
     <!-- Page Footer -->
