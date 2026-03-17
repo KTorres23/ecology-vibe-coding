@@ -1,55 +1,68 @@
-/* inat_annotator.js
-   Functionality: Fetches specific observations and handles 
-   manual annotation for CSV export.
-*/
+{
+    // 1. Setup Session State
+    let annotationData = [];
+    let currentPage = 1;
+    let currentTaxonId = null;
+    let currentSpeciesName = "";
 
-let annotationData = []; // State: Stores your labels during the session
+    // 2. The Search Function (Triggered by your button)
+    window.checkINaturalist = async function() {
+        const input = document.getElementById("speciesInput").value.trim();
+        if (!input) {
+            alert("Please enter a species name.");
+            return;
+        }
 
-// Helper to prevent API flooding
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-async function checkINaturalist() {
-    const input = document.getElementById("speciesInput").value.trim();
-    const speciesList = input.split("\n").map(s => s.trim()).filter(s => s.length > 0);
-    const table = document.getElementById("resultsTable");
-    const tbody = document.getElementById("resultsBody");
-
-    if (speciesList.length === 0) {
-        alert("Please enter at least one species name.");
-        return;
-    }
-
-    tbody.innerHTML = '<tr><td colspan="8">Searching for observations...</td></tr>';
-    table.style.display = "table";
-
-    let combinedRows = "";
-
-    for (const species of speciesList) {
+        currentPage = 1; // Reset to page 1 for new search
+        
         try {
-            // 1. Get the Taxon ID first
-            const taxonRes = await fetch(`https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(species)}&per_page=1`);
+            const taxonRes = await fetch(`https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(input)}&per_page=1`);
             const taxonData = await taxonRes.json();
             
-            if (taxonData.results.length === 0) {
-                combinedRows += `<tr><td colspan="8">Taxon not found: ${species}</td></tr>`;
-                continue;
+            if (!taxonData.results || taxonData.results.length === 0) {
+                alert("Species not found. Try the scientific name.");
+                return;
             }
 
-            const taxonId = taxonData.results[0].id;
-            const sciName = taxonData.results[0].name;
+            currentTaxonId = taxonData.results[0].id;
+            currentSpeciesName = taxonData.results[0].name;
+            
+            fetchObservations(); // Move to the data display
+        } catch (err) {
+            console.error("Search Error:", err);
+            alert("Could not connect to iNaturalist.");
+        }
+    };
 
-            // 2. Get the 5 most recent observations for this taxon
-            const obsRes = await fetch(`https://api.inaturalist.org/v1/observations?taxon_id=${taxonId}&per_page=5&order=desc&order_by=created_at`);
+    // 3. The Observation Fetcher
+    async function fetchObservations() {
+        const tbody = document.getElementById("resultsBody");
+        const table = document.getElementById("resultsTable");
+        
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">🔍 Loading Page ${currentPage}...</td></tr>`;
+        table.style.display = "table";
+
+        try {
+            const url = `https://api.inaturalist.org/v1/observations?taxon_id=${currentTaxonId}&per_page=10&page=${currentPage}&order=desc&order_by=created_at`;
+            const obsRes = await fetch(url);
             const obsData = await obsRes.json();
 
+            if (!obsData.results || obsData.results.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">No observations found on this page.</td></tr>`;
+                return;
+            }
+
+            let html = "";
             obsData.results.forEach(obs => {
-                const imgUrl = obs.photos.length > 0 ? obs.photos[0].url.replace('square', 'medium') : 'https://via.placeholder.com/150';
+                const imgUrl = (obs.photos && obs.photos.length > 0) 
+                    ? obs.photos[0].url.replace('square', 'medium') 
+                    : 'https://via.placeholder.com/150?text=No+Photo';
                 
-                combinedRows += `
+                html += `
                     <tr>
-                        <td><img src="${imgUrl}" width="150" style="border-radius:4px;"><br><small>Obs #${obs.id}</small></td>
-                        <td><a href="${obs.uri}" target="_blank">View iNat</a></td>
-                        <td><i>${sciName}</i></td>
+                        <td><img src="${imgUrl}" width="150" style="border-radius:4px;"><br>
+                            <a href="${obs.uri}" target="_blank" style="font-size:11px;">#${obs.id}</a></td>
+                        <td><i>${currentSpeciesName}</i></td>
                         <td>
                             <select id="stage-${obs.id}">
                                 <option value="adult">Adult</option>
@@ -63,63 +76,63 @@ async function checkINaturalist() {
                                 <option value="dead">Dead</option>
                             </select>
                         </td>
-                        <td>
-                            <input type="checkbox" id="road-${obs.id}"> Road in bg?
-                        </td>
-                        <td>
-                            <button onclick="addAnnotation('${obs.id}', '${sciName}')" style="background-color: #0366d6; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Save</button>
-                        </td>
+                        <td><input type="checkbox" id="road-${obs.id}"> Road?</td>
+                        <td><button onclick="addAnnotation('${obs.id}', '${currentSpeciesName}')" 
+                                    style="background-color:#0366d6; color:white; border:none; padding:5px; border-radius:4px; cursor:pointer;">
+                                    Save
+                            </button></td>
                     </tr>
                 `;
             });
+            tbody.innerHTML = html;
+            table.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         } catch (err) {
-            console.error(err);
-            combinedRows += `<tr><td colspan="8">Error fetching ${species}</td></tr>`;
+            console.error("Fetch Error:", err);
+            tbody.innerHTML = `<tr><td colspan="8">Error loading data.</td></tr>`;
         }
-        await sleep(300); // Respect iNat's API limits
     }
-    tbody.innerHTML = combinedRows;
-}
 
-// Logic to store the annotation in the session array
-function addAnnotation(id, species) {
-    const stage = document.getElementById(`stage-${id}`).value;
-    const status = document.getElementById(`status-${id}`).value;
-    const road = document.getElementById(`road-${id}`).checked ? "Road" : "No Road";
-
-    const entry = {
-        observation_id: id,
-        scientific_name: species,
-        life_stage: stage,
-        status: status,
-        environment: road,
-        annotated_at: new Date().toLocaleString()
+    // 4. Page Controls
+    window.changePage = function(direction) {
+        if (!currentTaxonId) return;
+        if (direction === 'next') currentPage++;
+        else if (direction === 'prev' && currentPage > 1) currentPage--;
+        fetchObservations();
     };
 
-    // Update if exists, otherwise push new
-    const idx = annotationData.findIndex(item => item.observation_id === id);
-    if (idx > -1) annotationData[idx] = entry;
-    else annotationData.push(entry);
+    // 5. Data Saving
+    window.addAnnotation = function(id, species) {
+        const entry = {
+            observation_id: id,
+            scientific_name: species,
+            life_stage: document.getElementById(`stage-${id}`).value,
+            status: document.getElementById(`status-${id}`).value,
+            environment: document.getElementById(`road-${id}`).checked ? "Road" : "No Road",
+            annotated_at: new Date().toISOString()
+        };
+        
+        const idx = annotationData.findIndex(item => item.observation_id === id);
+        if (idx > -1) annotationData[idx] = entry;
+        else annotationData.push(entry);
+        
+        console.log("Saved. Total in queue:", annotationData.length);
+        alert(`Saved Obs #${id}! Total annotated: ${annotationData.length}`);
+    };
 
-    alert(`Saved #${id} to CSV queue.`);
-}
+    // 6. CSV Export
+    window.downloadCSV = function() {
+        if (annotationData.length === 0) {
+            alert("Nothing to export yet.");
+            return;
+        }
+        const headers = Object.keys(annotationData[0]).join(",");
+        const rows = annotationData.map(obj => Object.values(obj).map(v => `"${v}"`).join(",")).join("\n");
+        const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows;
+        const link = document.createElement("a");
+        link.setAttribute("href", encodeURI(csvContent));
+        link.setAttribute("download", `inat_annotations_${Date.now()}.csv`);
+        link.click();
+    };
 
-// Logic to convert array to CSV and download
-function downloadCSV() {
-    if (annotationData.length === 0) {
-        alert("Queue is empty! Annotate some images first.");
-        return;
-    }
-
-    const headers = Object.keys(annotationData[0]).join(",");
-    const rows = annotationData.map(obj => Object.values(obj).map(v => `"${v}"`).join(",")).join("\n");
-    const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows;
-
-    const link = document.createElement("a");
-    link.setAttribute("href", encodeURI(csvContent));
-    link.setAttribute("download", `inat_annotations_${new Date().getTime()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
+} // <--- THIS is the closing bracket that was likely missing!
