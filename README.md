@@ -19,7 +19,13 @@ A goofy little repo hosted as a [webpage](https://ktorres23.github.io/ecology-vi
 
 * *More projects coming soon...*
 
+## useful tools/projects related to iNaturalist by others:
+
+* See my [list of cool iNat tools hosted on GitHub repos](https://github.com/stars/KTorres23/lists/cool-inat-tools)
+* [iNatSpectro](https://www.inatspectro.org/development/): multi-browser extension designed to integrate high-resolution spectrograms directly into iNaturalist observation pages.
+
+
 ---
 **Contact:** Karina Torres ([karina.torres@siu.edu](mailto:karina.torres@siu.edu))  
 
-**Last updated:** 2026-03-17
+**Last updated:** 2026-03-25
