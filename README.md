@@ -15,6 +15,9 @@ A goofy little repo hosted as a [webpage](https://ktorres23.github.io/ecology-vi
         * navigation
         * filtering observations
         * 'blacklisting' previous observations that were annotated
+* [GBIF Downloader with rgbif package](../scripts/gbif_downloader.R)
+  * Main prompt:
+     > using Rgbif, write an R script that downloads all aquatic insect species occurrence info from the GBIF API, including the taxon orders of Plecoptera, Trichoptera, and Ephemeroptera. Then make a map of the world with points highlighting occurrence data of each order in a different color. 
 
 
 * *More projects coming soon...*
