@@ -31,4 +31,4 @@ A goofy little repo hosted as a [webpage](https://ktorres23.github.io/ecology-vi
 ---
 **Contact:** Karina Torres ([karina.torres@siu.edu](mailto:karina.torres@siu.edu))  
 
-**Last updated:** 2026-03-25
+**Last updated:** 2026-03-27
