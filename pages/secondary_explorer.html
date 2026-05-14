@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>iNaturalist Secondary Data Explorer</title>
+
+  <!-- Main Site Styling -->
+  <link rel="stylesheet" href="../styles/main.css" />
+
+  <!-- Specific styling for this tool -->
+  <style>
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-style: italic;
+      color: #666;
+    }
+
+    /* Result Grid Styling */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card-info {
+      padding: 10px;
+      font-size: 0.9em;
+    }
+
+    .score-container {
+      background: #eee;
+      height: 8px;
+      border-radius: 4px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+
+    .score-bar {
+      background: #74ac00;
+      height: 100%;
+      transition: width 0.3s;
+    }
+
+    .match-label {
+      font-weight: bold;
+      color: #74ac00;
+    }
+
+    button {
+      background-color: #74ac00;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar icon -->
+  <div class="sidebar_icon" id="sidebarToggle" title="Open sidebar">
+    <svg viewBox="0 0 24 24">
+      <rect x="4" y="6" width="16" height="2" />
+      <rect x="4" y="11" width="16" height="2" />
+      <rect x="4" y="16" width="16" height="2" />
+    </svg>
+  </div>
+
+  <!-- Sidebar content -->
+  <div class="sidebar_box" id="sidebar">
+    <ul>
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../pages/inat_query.html">iNaturalist Query Tool</a></li>
+      <li><a href="../pages/jobs.html">TAMU Ecology Jobs</a></li>
+      <li><a href="../pages/image_sorter.html">iNaturalist Annotator Tool</a></li>
+      <li><a href="../pages/secondary_explorer.html">Secondary Data Explorer</a></li>
+    </ul>
+  </div>
+
+  <!-- Site header -->
+  <header>
+    <h1>Ecology Vibe Coding Projects</h1>
+  </header>
+
+  <main>
+    <h1>iNaturalist Secondary Data Explorer</h1>
+    <p>Identify "hidden" information in iNat images (e.g., roads, sex, behavior) using CLIP zero-shot classification.
+    </p>
+
+    <div class="input-group">
+      <label for="speciesInput">Target Species:</label>
+      <input type="text" id="speciesInput" placeholder="e.g., Ursus americanus">
+    </div>
+
+    <div class="input-group">
+      <label for="secondaryQuery">Secondary Feature (CLIP prompt):</label>
+      <input type="text" id="secondaryQuery" placeholder="e.g., a photo of a bear on a road">
+    </div>
+
+    <button id="runBtn" disabled>Loading AI Model...</button>
+    <p id="status">Initializing Transformers.js...</p>
+
+    <div id="results" class="grid"></div>
+  </main>
+
+  <!-- Page Footer -->
+  <footer class="footer">
+    <span>Connect via </span>
+    <a href="https://github.com/KTorres23" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://www.linkedin.com/in/karina-torres-828175299/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://scholar.google.com/citations?user=vulOb8MAAAAJ&hl=en&oi=ao" target="_blank"
+      rel="noopener">Scholar</a>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="../scripts/sidebar.js"></script>
+
+  <script type="module">
+    import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0-alpha.19';
+
+    let classifier;
+    const runBtn = document.getElementById('runBtn');
+    const status = document.getElementById('status');
+    const resultsGrid = document.getElementById('results');
+
+    // Initialize the CLIP model
+    async function loadModel() {
+      try {
+        status.innerText = "Loading CLIP model (~350MB)...";
+        classifier = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-base-patch32', {
+          device: 'webgpu'
+        });
+        status.innerText = "Model loaded and ready.";
+        runBtn.innerText = "Search & Analyze";
+        runBtn.disabled = false;
+      } catch (e) {
+        status.innerText = "WebGPU failed, falling back to CPU (slower)...";
+        classifier = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-base-patch32');
+        status.innerText = "Model loaded (CPU).";
+        runBtn.innerText = "Search & Analyze";
+        runBtn.disabled = false;
+      }
+    }
+
+    loadModel();
+
+    runBtn.addEventListener('click', async () => {
+      const species = document.getElementById('speciesInput').value;
+      const secondary = document.getElementById('secondaryQuery').value;
+
+      if (!species || !secondary) return alert("Please enter both a species and a secondary query.");
+
+      resultsGrid.innerHTML = "";
+      runBtn.disabled = true;
+      status.innerText = `Fetching ${species} from iNaturalist...`;
+
+      try {
+        // 1. Get Taxon ID
+        const taxonRes = await fetch(`https://api.inaturalist.org/v1/taxa?q=${encodeURIComponent(species)}`);
+        const taxonData = await taxonRes.json();
+        if (!taxonData.results.length) throw new Error("Species not found.");
+        const taxonId = taxonData.results[0].id;
+
+        // 2. Get Observations
+        status.innerText = "Fetching observations...";
+        const obsRes = await fetch(`https://api.inaturalist.org/v1/observations?taxon_id=${taxonId}&per_page=15&only_id=false&order_by=created_at&order=desc`);
+        const obsData = await obsRes.json();
+
+        // 3. Process each with CLIP
+        for (const obs of obsData.results) {
+          if (!obs.photos.length) continue;
+
+          const imgUrl = obs.photos[0].url.replace('square', 'medium');
+          status.innerText = `Analyzing observation ${obs.id}...`;
+
+          // Zero-shot: Compare user query against a neutral background label
+          const output = await classifier(imgUrl, [secondary, "a natural landscape"]);
+          const topResult = output.find(o => o.label === secondary);
+          const score = topResult.score;
+
+          // 4. Append to UI
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <a href="https://www.inaturalist.org/observations/${obs.id}" target="_blank">
+              <img src="${imgUrl}" crossorigin="anonymous">
+            </a>
+            <div class="card-info">
+              <div class="match-label">Match: ${(score * 100).toFixed(1)}%</div>
+              <div class="score-container">
+                <div class="score-bar" style="width: ${score * 100}%"></div>
+              </div>
+              <p style="margin-top:10px;">ID: ${obs.id}<br>User: ${obs.user.login}</p>
+            </div>
+          `;
+          resultsGrid.appendChild(card);
+        }
+        status.innerText = "Analysis complete.";
+      } catch (err) {
+        status.innerText = `Error: ${err.message}`;
+      } finally {
+        runBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+
+</html>
