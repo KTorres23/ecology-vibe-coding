@@ -72,10 +72,22 @@
       border-color: #74ac00;
     }
 
+    /* OVERRIDE BLUE TEXT: Inherit color from parent, remove underline */
+    .card a {
+      color: inherit;
+      text-decoration: none;
+      display: block;
+    }
+
+    .card a:hover {
+      text-decoration: none;
+    }
+
     .card img {
       width: 100%;
       height: 180px;
       object-fit: cover;
+      display: block;
     }
 
     .card-info {
@@ -110,6 +122,7 @@
 
     button:disabled {
       background-color: #ccc;
+      cursor: not-allowed;
     }
   </style>
 </head>
@@ -120,15 +133,11 @@
       <rect x="4" y="11" width="16" height="2" />
       <rect x="4" y="16" width="16" height="2" />
     </svg></div>
-
   <div class="sidebar_box" id="sidebar">
     <ul>
       <li><a href="../index.html">Home</a></li>
-      <li><a href="../pages/inat_query.html">iNaturalist Query Tool</a></li>
-      <li><a href="../pages/jobs.html">TAMU Ecology Jobs</a></li>
-      <li><a href="../pages/image_sorter.html">iNaturalist Annotator Tool</a></li>
-      <li><a href="../pages/secondary_explorer.html">Secondary Data Explorer</a></li>
-      <li><a href="#">More projects soon</a></li>
+      <li><a href="inat_query.html">iNat Query</a></li>
+      <li><a href="secondary_explorer.html">Secondary Explorer</a></li>
     </ul>
   </div>
 
@@ -141,15 +150,31 @@
     <span id="status">Initializing...</span>
 
     <div class="filter-panel">
-      <div class="input-group"><label>Species</label><input type="text" id="species"
-          placeholder="e.g. Ursus americanus"></div>
-      <div class="input-group"><label>Place (ID or name)</label><input type="text" id="place" placeholder="e.g. 35">
+      <div class="input-group">
+        <label>Taxon (Family, Genus, Species, etc.)</label>
+        <input type="text" id="taxon" placeholder="e.g. Animalia, Monarch, Ursus americanus">
       </div>
-      <div class="input-group"><label>Username</label><input type="text" id="user" placeholder="iNat username"></div>
+      <div class="input-group">
+        <label>Place (Text search)</label>
+        <input type="text" id="place" placeholder="e.g. Illinois, Yellowstone, Amazon">
+      </div>
+      <div class="input-group">
+        <label>Username</label>
+        <input type="text" id="user" placeholder="e.g. beartracker">
+      </div>
       <div class="input-group">
         <label>Sample Size (<span id="sampleVal">20</span>)</label>
         <input type="range" id="limit" min="10" max="100" value="20"
           oninput="document.getElementById('sampleVal').innerText=this.value">
+      </div>
+      <!-- Re-added Date Filters -->
+      <div class="input-group">
+        <label>Start Date</label>
+        <input type="date" id="d1">
+      </div>
+      <div class="input-group">
+        <label>End Date</label>
+        <input type="date" id="d2">
       </div>
     </div>
 
@@ -165,11 +190,11 @@
     <div class="filter-panel" style="margin-top:0; border-top:none;">
       <div class="input-group">
         <label>Target Feature (Search For)</label>
-        <input type="text" id="feature" placeholder="e.g. a bear with a brown muzzle">
+        <input type="text" id="feature" placeholder="e.g. photo with bear tracks">
       </div>
       <div class="input-group">
         <label>Negative Baseline (Compare Against)</label>
-        <input type="text" id="baseline" value="a generic photo of nature with no animals">
+        <input type="text" id="baseline" value="e.g. photo with no bear tracks">
       </div>
     </div>
 
@@ -192,7 +217,7 @@
       statusEl.innerText = "Loading Large AI Model (~400MB)...";
       try {
         classifier = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-large-patch14', {
-          dtype: 'q4', // 4-bit quantization for performance
+          dtype: 'q4',
           device: 'webgpu'
         });
         statusEl.innerText = "Large Model Ready.";
@@ -203,31 +228,73 @@
       }
     })();
 
+    // Helper Function to get Taxon ID
+    async function getTaxonId(taxonName) {
+      if (!taxonName) return null;
+      const res = await fetch(`https://api.inaturalist.org/v1/taxa/autocomplete?q=${encodeURIComponent(taxonName)}`);
+      const data = await res.json();
+      return data.results.length ? data.results[0].id : null;
+    }
+
+    // Helper Function to get Place ID
+    async function getPlaceId(placeName) {
+      if (!placeName) return null;
+      const res = await fetch(`https://api.inaturalist.org/v1/places/autocomplete?q=${encodeURIComponent(placeName)}`);
+      const data = await res.json();
+      return data.results.length ? data.results[0].id : null;
+    }
+
     // 2. Fetch iNat Data
     document.getElementById('fetchBtn').onclick = async () => {
-      const sp = document.getElementById('species').value;
+      const taxonQuery = document.getElementById('taxon').value;
+      const placeQuery = document.getElementById('place').value;
       const user = document.getElementById('user').value;
-      const place = document.getElementById('place').value;
       const limit = document.getElementById('limit').value;
+      const d1 = document.getElementById('d1').value;
+      const d2 = document.getElementById('d2').value;
 
-      statusEl.innerText = "Fetching data...";
-      let url = `https://api.inaturalist.org/v1/observations?q=${encodeURIComponent(sp)}&per_page=${limit}&only_id=false`;
+      statusEl.innerText = "Resolving search parameters...";
+
+      // Get IDs before searching
+      const taxonId = await getTaxonId(taxonQuery);
+      if (taxonQuery && !taxonId) {
+        return statusEl.innerText = `Could not find Taxon: ${taxonQuery}`;
+      }
+
+      const placeId = await getPlaceId(placeQuery);
+      if (placeQuery && !placeId) {
+        return statusEl.innerText = `Could not find Place: ${placeQuery}`;
+      }
+
+      statusEl.innerText = "Fetching observations...";
+
+      // Build URL
+      let url = `https://api.inaturalist.org/v1/observations?per_page=${limit}&only_id=false&order_by=created_at&order=desc`;
+      if (taxonId) url += `&taxon_id=${taxonId}`;
+      if (placeId) url += `&place_id=${placeId}`;
       if (user) url += `&user_id=${user}`;
-      if (place) url += `&place_id=${place}`;
+      if (d1) url += `&d1=${d1}`;
+      if (d2) url += `&d2=${d2}`;
 
       const res = await fetch(url);
       const data = await res.json();
       observations = data.results;
 
+      if (observations.length === 0) {
+        statusEl.innerText = "No observations found for these filters.";
+        resultsGrid.innerHTML = "";
+        analyzeBtn.classList.add('hidden');
+        return;
+      }
+
       renderGrid();
       analyzeBtn.classList.remove('hidden');
-      statusEl.innerText = `Previewing ${observations.length} images.`;
+      statusEl.innerText = `Previewing ${observations.length} images. Ready for analysis.`;
     };
 
     function renderGrid() {
       resultsGrid.innerHTML = observations.map(obs => {
         const rawUrl = obs.photos[0]?.url.replace('square', 'medium') || '';
-        // PROXY EVERYTHING to bypass CORS
         const proxiedUrl = `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}`;
 
         return `
@@ -261,7 +328,6 @@
 
         statusEl.innerText = `Deep Analyzing Obs ${obs.id}...`;
 
-        // Adding two generic distractors helps "drain" false confidence
         const labels = [feature, baseline, "blurry texture", "out of focus background"];
         const output = await classifier(proxied, labels);
 
