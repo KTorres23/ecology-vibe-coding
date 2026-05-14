@@ -79,6 +79,17 @@
       font-weight: bold;
     }
 
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      border-color: #74ac00;
+    }
+
+    .card {
+      transition: all 0.2s ease;
+    }
+
     .hidden {
       display: none;
     }
@@ -177,7 +188,10 @@
     (async () => {
       statusEl.innerText = "Loading AI Model (~350MB)...";
       try {
-        classifier = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-base-patch32');
+        classifier = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-large-patch14', {
+          dtype: 'q4', // This uses a 4-bit quantized version (~350MB instead of 1.7GB)
+          device: 'webgpu'
+        });
         statusEl.innerText = "Model ready.";
       } catch (e) {
         statusEl.innerText = "Error loading model. Check console.";
@@ -212,18 +226,26 @@
 
     function renderGrid() {
       const grid = document.getElementById('results');
-      grid.innerHTML = observations.map(obs => `
-            <div class="card" id="obs-${obs.id}" data-score="0">
-              <img src="${obs.photos[0]?.url.replace('square', 'medium')}" crossorigin="anonymous">
-              <div class="card-info">
-                <div class="confidence-score hidden" id="score-${obs.id}"></div>
-                <small>User: ${obs.user.login}</small><br>
-                <small>Date: ${obs.observed_on}</small>
-              </div>
-            </div>
-          `).join('');
-    }
 
+      // Use map to create the HTML for each card
+      grid.innerHTML = observations.map(obs => {
+        const imageUrl = obs.photos[0]?.url.replace('square', 'medium') || '';
+
+        return `
+      <div class="card" id="obs-${obs.id}" data-score="0">
+        <a href="https://www.inaturalist.org/observations/${obs.id}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit;">
+          <img src="${imageUrl}" crossorigin="anonymous" alt="iNaturalist observation ${obs.id}">
+          <div class="card-info">
+            <div class="confidence-score hidden" id="score-${obs.id}"></div>
+            <small><strong>User:</strong> ${obs.user.login}</small><br>
+            <small><strong>Date:</strong> ${obs.observed_on || 'N/A'}</small>
+            <p style="font-size: 0.7em; margin-top: 5px; color: #0366d6;">View on iNaturalist →</p>
+          </div>
+        </a>
+      </div>
+    `;
+      }).join('');
+    }
 
     // 3. Step 2: Analyze - update 'status' to 'statusEl'
     analyzeBtn.onclick = async () => {
