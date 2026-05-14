@@ -206,32 +206,40 @@
 
         // 3. Process each with CLIP
         for (const obs of obsData.results) {
-          if (!obs.photos.length) continue;
 
-          const imgUrl = obs.photos[0].url.replace('square', 'medium');
+          // 1. Get the original medium-sized URL
+          const originalUrl = obs.photos[0].url.replace('square', 'medium');
+
+          // 2. Wrap it in a CORS proxy (wsrv.nl is reliable and fast)
+          const proxiedUrl = `https://wsrv.nl/?url=${encodeURIComponent(originalUrl)}`;
+
           status.innerText = `Analyzing observation ${obs.id}...`;
 
-          // Zero-shot: Compare user query against a neutral background label
-          const output = await classifier(imgUrl, [secondary, "a natural landscape"]);
-          const topResult = output.find(o => o.label === secondary);
-          const score = topResult.score;
+          try {
+            // Use the proxied URL for the classifier
+            const output = await classifier(proxiedUrl, [secondary, "a natural landscape"]);
+            const topResult = output.find(o => o.label === secondary);
+            const score = topResult.score;
 
-          // 4. Append to UI
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = `
-            <a href="https://www.inaturalist.org/observations/${obs.id}" target="_blank">
-              <img src="${imgUrl}" crossorigin="anonymous">
-            </a>
-            <div class="card-info">
-              <div class="match-label">Match: ${(score * 100).toFixed(1)}%</div>
-              <div class="score-container">
-                <div class="score-bar" style="width: ${score * 100}%"></div>
-              </div>
-              <p style="margin-top:10px;">ID: ${obs.id}<br>User: ${obs.user.login}</p>
-            </div>
-          `;
-          resultsGrid.appendChild(card);
+            // 4. Append to UI (We can still use the original URL for the <img> tag display)
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+    <a href="https://www.inaturalist.org/observations/${obs.id}" target="_blank">
+      <img src="${originalUrl}" loading="lazy">
+    </a>
+    <div class="card-info">
+      <div class="match-label">Match: ${(score * 100).toFixed(1)}%</div>
+      <div class="score-container">
+        <div class="score-bar" style="width: ${score * 100}%"></div>
+      </div>
+      <p style="margin-top:10px;">ID: ${obs.id}<br>User: ${obs.user.login}</p>
+    </div>
+  `;
+            resultsGrid.appendChild(card);
+          } catch (err) {
+            console.error("CLIP failed for:", proxiedUrl, err);
+          }
         }
         status.innerText = "Analysis complete.";
       } catch (err) {
