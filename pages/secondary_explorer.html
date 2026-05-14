@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>iNat Secondary Explorer</title>
+  <title>iNat Secondary Explorer Pro</title>
   <link rel="stylesheet" href="../styles/main.css" />
   <style>
     .filter-panel {
@@ -40,17 +40,19 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     #status {
       font-style: italic;
       color: #555;
-      margin-left: 10px;
+      margin-bottom: 15px;
+      display: block;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 15px;
       margin-top: 20px;
     }
@@ -60,38 +62,54 @@
       border-radius: 6px;
       overflow: hidden;
       background: white;
-      transition: 0.2s;
-    }
-
-    .card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-    }
-
-    .card-info {
-      padding: 10px;
-      font-size: 0.8em;
-    }
-
-    .confidence-score {
-      color: #74ac00;
-      font-weight: bold;
+      transition: all 0.2s ease;
+      position: relative;
     }
 
     .card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       border-color: #74ac00;
     }
 
-    .card {
-      transition: all 0.2s ease;
+    .card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .card-info {
+      padding: 12px;
+      font-size: 0.85em;
+    }
+
+    .confidence-score {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(116, 172, 0, 0.9);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
     }
 
     .hidden {
       display: none;
+    }
+
+    button {
+      background-color: #74ac00;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    button:disabled {
+      background-color: #ccc;
     }
   </style>
 </head>
@@ -103,8 +121,6 @@
       <rect x="4" y="16" width="16" height="2" />
     </svg></div>
 
-
-  <!-- Sidebar content -->
   <div class="sidebar_box" id="sidebar">
     <ul>
       <li><a href="../index.html">Home</a></li>
@@ -116,104 +132,88 @@
     </ul>
   </div>
 
-
   <header>
     <h1>Ecology Vibe Coding</h1>
   </header>
 
   <main>
-    <h2>Secondary Data Explorer</h2>
+    <h2>Secondary Data Explorer (Large Model)</h2>
+    <span id="status">Initializing...</span>
 
-    <!-- Filters Panel -->
     <div class="filter-panel">
-      <div class="input-group">
-        <label>Species Name</label>
-        <input type="text" id="species" placeholder="e.g. Ursus americanus">
+      <div class="input-group"><label>Species</label><input type="text" id="species"
+          placeholder="e.g. Ursus americanus"></div>
+      <div class="input-group"><label>Place (ID or name)</label><input type="text" id="place" placeholder="e.g. 35">
       </div>
-      <div class="input-group">
-        <label>Area (Place ID or slug)</label>
-        <input type="text" id="place" placeholder="e.g. illinois">
-      </div>
-      <div class="input-group">
-        <label>Username</label>
-        <input type="text" id="user" placeholder="iNat username">
-      </div>
+      <div class="input-group"><label>Username</label><input type="text" id="user" placeholder="iNat username"></div>
       <div class="input-group">
         <label>Sample Size (<span id="sampleVal">20</span>)</label>
-        <input type="range" id="limit" min="10" max="100" value="20" oninput="sampleVal.innerText=this.value">
-      </div>
-      <div class="input-group">
-        <label>Start Date</label>
-        <input type="date" id="d1">
-      </div>
-      <div class="input-group">
-        <label>End Date</label>
-        <input type="date" id="d2">
+        <input type="range" id="limit" min="10" max="100" value="20"
+          oninput="document.getElementById('sampleVal').innerText=this.value">
       </div>
     </div>
 
-    <!-- Control Buttons -->
     <div class="actions">
       <button id="fetchBtn">1. Fetch Preview</button>
       <button id="analyzeBtn" class="hidden">2. Run CLIP Analysis</button>
-      <div class="input-group" id="confControl" style="display:none; flex-direction:row; align-items:center; gap:10px;">
-        <label>Min Confidence: <span id="confVal">0</span>%</label>
+      <div id="confControl" class="hidden" style="display:flex; align-items:center; gap:10px;">
+        <label>Min Match: <span id="confVal">0</span>%</label>
         <input type="range" id="confFilter" min="0" max="100" value="0">
       </div>
     </div>
 
-    <div class="input-group">
-      <label>Analyze for:</label>
-      <input type="text" id="feature" placeholder="e.g. a bear near a road">
+    <div class="filter-panel" style="margin-top:0; border-top:none;">
+      <div class="input-group">
+        <label>Target Feature (Search For)</label>
+        <input type="text" id="feature" placeholder="e.g. a bear with a brown muzzle">
+      </div>
+      <div class="input-group">
+        <label>Negative Baseline (Compare Against)</label>
+        <input type="text" id="baseline" value="a generic photo of nature with no animals">
+      </div>
     </div>
 
-    <p id="status">Ready.</p>
     <div id="results" class="grid"></div>
   </main>
 
   <script type="module">
     import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0-alpha.19';
 
-    // Explicitly grab the elements to avoid naming collisions with 'window' properties
     const statusEl = document.getElementById('status');
     const resultsGrid = document.getElementById('results');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const confControl = document.getElementById('confControl');
-    const sampleVal = document.getElementById('sampleVal');
 
     let classifier;
     let observations = [];
 
-    // 1. Load Model - update 'status' to 'statusEl'
+    // 1. Load Large Quantized Model
     (async () => {
-      statusEl.innerText = "Loading AI Model (~350MB)...";
+      statusEl.innerText = "Loading Large AI Model (~400MB)...";
       try {
         classifier = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-large-patch14', {
-          dtype: 'q4', // This uses a 4-bit quantized version (~350MB instead of 1.7GB)
+          dtype: 'q4', // 4-bit quantization for performance
           device: 'webgpu'
         });
-        statusEl.innerText = "Model ready.";
+        statusEl.innerText = "Large Model Ready.";
       } catch (e) {
-        statusEl.innerText = "Error loading model. Check console.";
-        console.error(e);
+        statusEl.innerText = "WebGPU not available. Loading on CPU...";
+        classifier = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-large-patch14', { dtype: 'q4' });
+        statusEl.innerText = "Large Model Ready (CPU Mode).";
       }
     })();
 
-    // 2. Step 1: Fetch - update 'status' to 'statusEl'
+    // 2. Fetch iNat Data
     document.getElementById('fetchBtn').onclick = async () => {
       const sp = document.getElementById('species').value;
       const user = document.getElementById('user').value;
       const place = document.getElementById('place').value;
       const limit = document.getElementById('limit').value;
-      const d1 = document.getElementById('d1').value;
-      const d2 = document.getElementById('d2').value;
 
-      statusEl.innerText = "Searching iNat...";
-      let url = `https://api.inaturalist.org/v1/observations?q=${sp}&per_page=${limit}&only_id=false`;
+      statusEl.innerText = "Fetching data...";
+      let url = `https://api.inaturalist.org/v1/observations?q=${encodeURIComponent(sp)}&per_page=${limit}&only_id=false`;
       if (user) url += `&user_id=${user}`;
       if (place) url += `&place_id=${place}`;
-      if (d1) url += `&d1=${d1}`;
-      if (d2) url += `&d2=${d2}`;
 
       const res = await fetch(url);
       const data = await res.json();
@@ -221,66 +221,70 @@
 
       renderGrid();
       analyzeBtn.classList.remove('hidden');
-      statusEl.innerText = `Fetched ${observations.length} observations.`;
+      statusEl.innerText = `Previewing ${observations.length} images.`;
     };
 
     function renderGrid() {
-      const grid = document.getElementById('results');
-
-      // Use map to create the HTML for each card
-      grid.innerHTML = observations.map(obs => {
-        const imageUrl = obs.photos[0]?.url.replace('square', 'medium') || '';
+      resultsGrid.innerHTML = observations.map(obs => {
+        const rawUrl = obs.photos[0]?.url.replace('square', 'medium') || '';
+        // PROXY EVERYTHING to bypass CORS
+        const proxiedUrl = `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}`;
 
         return `
-      <div class="card" id="obs-${obs.id}" data-score="0">
-        <a href="https://www.inaturalist.org/observations/${obs.id}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit;">
-          <img src="${imageUrl}" crossorigin="anonymous" alt="iNaturalist observation ${obs.id}">
-          <div class="card-info">
-            <div class="confidence-score hidden" id="score-${obs.id}"></div>
-            <small><strong>User:</strong> ${obs.user.login}</small><br>
-            <small><strong>Date:</strong> ${obs.observed_on || 'N/A'}</small>
-            <p style="font-size: 0.7em; margin-top: 5px; color: #0366d6;">View on iNaturalist →</p>
-          </div>
-        </a>
-      </div>
-    `;
+              <div class="card" id="obs-${obs.id}" data-score="0">
+                <a href="https://www.inaturalist.org/observations/${obs.id}" target="_blank">
+                  <div class="confidence-score hidden" id="score-${obs.id}">0%</div>
+                  <img src="${proxiedUrl}" crossorigin="anonymous">
+                  <div class="card-info">
+                    <strong>User:</strong> ${obs.user.login}<br>
+                    <strong>Observed:</strong> ${obs.observed_on}
+                  </div>
+                </a>
+              </div>
+            `;
       }).join('');
     }
 
-    // 3. Step 2: Analyze - update 'status' to 'statusEl'
+    // 3. Analyze with Negative Baseline
     analyzeBtn.onclick = async () => {
       const feature = document.getElementById('feature').value;
-      if (!feature) return alert("Enter a feature to search for!");
+      const baseline = document.getElementById('baseline').value;
+      if (!feature) return alert("Enter a feature!");
 
       analyzeBtn.disabled = true;
-      confControl.style.display = 'flex';
+      confControl.classList.remove('hidden');
 
       for (let obs of observations) {
         if (!obs.photos.length) continue;
         const img = obs.photos[0].url.replace('square', 'medium');
         const proxied = `https://wsrv.nl/?url=${encodeURIComponent(img)}`;
 
-        statusEl.innerText = `Analyzing ${obs.id}...`;
-        const output = await classifier(proxied, [feature, "a natural landscape"]);
+        statusEl.innerText = `Deep Analyzing Obs ${obs.id}...`;
+
+        // Adding two generic distractors helps "drain" false confidence
+        const labels = [feature, baseline, "blurry texture", "out of focus background"];
+        const output = await classifier(proxied, labels);
+
         const score = output.find(o => o.label === feature).score;
+        const scorePercent = (score * 100).toFixed(1);
 
         const scoreEl = document.getElementById(`score-${obs.id}`);
         const cardEl = document.getElementById(`obs-${obs.id}`);
-        scoreEl.innerText = `Match: ${(score * 100).toFixed(1)}%`;
+        scoreEl.innerText = `${scorePercent}%`;
         scoreEl.classList.remove('hidden');
-        cardEl.dataset.score = score * 100;
+        cardEl.dataset.score = scorePercent;
       }
-      statusEl.innerText = "Analysis complete.";
+      statusEl.innerText = "Deep Analysis Complete.";
       analyzeBtn.disabled = false;
     };
 
-    // Confidence Filter Logic
+    // Filter Logic
     document.getElementById('confFilter').oninput = (e) => {
       const min = e.target.value;
       document.getElementById('confVal').innerText = min;
       document.querySelectorAll('.card').forEach(card => {
-        const score = parseFloat(card.dataset.score);
-        card.style.display = (score >= min || card.dataset.score === "0") ? 'block' : 'none';
+        const s = parseFloat(card.dataset.score);
+        card.style.display = (s >= min || card.dataset.score === "0") ? 'block' : 'none';
       });
     };
   </script>
