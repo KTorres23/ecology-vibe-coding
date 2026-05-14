@@ -162,17 +162,30 @@
 
   <script type="module">
     import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0-alpha.19';
+
+    // Explicitly grab the elements to avoid naming collisions with 'window' properties
+    const statusEl = document.getElementById('status');
+    const resultsGrid = document.getElementById('results');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const confControl = document.getElementById('confControl');
+    const sampleVal = document.getElementById('sampleVal');
+
     let classifier;
     let observations = [];
 
-    // Load Model
+    // 1. Load Model - update 'status' to 'statusEl'
     (async () => {
-      status.innerText = "Loading AI Model...";
-      classifier = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-base-patch32');
-      status.innerText = "Model ready.";
+      statusEl.innerText = "Loading AI Model (~350MB)...";
+      try {
+        classifier = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-base-patch32');
+        statusEl.innerText = "Model ready.";
+      } catch (e) {
+        statusEl.innerText = "Error loading model. Check console.";
+        console.error(e);
+      }
     })();
 
-    // Step 1: Fetch
+    // 2. Step 1: Fetch - update 'status' to 'statusEl'
     document.getElementById('fetchBtn').onclick = async () => {
       const sp = document.getElementById('species').value;
       const user = document.getElementById('user').value;
@@ -181,7 +194,7 @@
       const d1 = document.getElementById('d1').value;
       const d2 = document.getElementById('d2').value;
 
-      status.innerText = "Searching iNat...";
+      statusEl.innerText = "Searching iNat...";
       let url = `https://api.inaturalist.org/v1/observations?q=${sp}&per_page=${limit}&only_id=false`;
       if (user) url += `&user_id=${user}`;
       if (place) url += `&place_id=${place}`;
@@ -194,7 +207,7 @@
 
       renderGrid();
       analyzeBtn.classList.remove('hidden');
-      status.innerText = `Fetched ${observations.length} observations.`;
+      statusEl.innerText = `Fetched ${observations.length} observations.`;
     };
 
     function renderGrid() {
@@ -211,8 +224,9 @@
           `).join('');
     }
 
-    // Step 2: Analyze
-    document.getElementById('analyzeBtn').onclick = async () => {
+
+    // 3. Step 2: Analyze - update 'status' to 'statusEl'
+    analyzeBtn.onclick = async () => {
       const feature = document.getElementById('feature').value;
       if (!feature) return alert("Enter a feature to search for!");
 
@@ -224,7 +238,7 @@
         const img = obs.photos[0].url.replace('square', 'medium');
         const proxied = `https://wsrv.nl/?url=${encodeURIComponent(img)}`;
 
-        status.innerText = `Analyzing ${obs.id}...`;
+        statusEl.innerText = `Analyzing ${obs.id}...`;
         const output = await classifier(proxied, [feature, "a natural landscape"]);
         const score = output.find(o => o.label === feature).score;
 
@@ -234,7 +248,7 @@
         scoreEl.classList.remove('hidden');
         cardEl.dataset.score = score * 100;
       }
-      status.innerText = "Analysis complete.";
+      statusEl.innerText = "Analysis complete.";
       analyzeBtn.disabled = false;
     };
 
