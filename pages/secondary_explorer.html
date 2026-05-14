@@ -176,6 +176,14 @@
         <label>End Date</label>
         <input type="date" id="d2">
       </div>
+      <div class="input-group">
+        <label>Quality Grade</label>
+        <select id="quality">
+          <option value="">Any</option>
+          <option value="research">Research Grade</option>
+          <option value="needs_id">Needs ID</option>
+        </select>
+      </div>
     </div>
 
     <div class="actions">
@@ -194,7 +202,7 @@
       </div>
       <div class="input-group">
         <label>Negative Baseline (Compare Against)</label>
-        <input type="text" id="baseline" value="e.g. photo with no bear tracks">
+        <input type="text" id="baseline" placeholder="e.g. photo with no bear tracks">
       </div>
     </div>
 
@@ -252,6 +260,7 @@
       const limit = document.getElementById('limit').value;
       const d1 = document.getElementById('d1').value;
       const d2 = document.getElementById('d2').value;
+      const quality = document.getElementById('quality').value;
 
       statusEl.innerText = "Resolving search parameters...";
 
@@ -275,6 +284,7 @@
       if (user) url += `&user_id=${user}`;
       if (d1) url += `&d1=${d1}`;
       if (d2) url += `&d2=${d2}`;
+      if (quality) url += `&quality_grade=${quality}`;
 
       const res = await fetch(url);
       const data = await res.json();
