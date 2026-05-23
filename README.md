@@ -4,6 +4,8 @@ A goofy little repo hosted as a [webpage](https://ktorres23.github.io/ecology-vi
 
 ## Projects
 
+Click on the *name* of the tool below to try it out, or click on the *description* to find out more about how to run it or how it was created. 
+
 **Web-based** (i.e., hosted as a webpage that you can use, too!)
 
 * [iNaturalist Query Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/inat_query.html); [description](#inaturalist-query-tool)
@@ -43,11 +45,6 @@ Additional functionalities added:
 * 'blacklisting' previous observations that were annotated
 
 
-### [Insect Map Script with Rgbif Package](scripts/gbif_downloader.R)
-
-> **Main prompt**: using Rgbif, write an R script that downloads all aquatic insect species occurrence info from the GBIF API, including the taxon orders of Plecoptera, Trichoptera, and Ephemeroptera. Then make a map of the world with points highlighting occurrence data of each order in a different color.
-
-
 ### [iNaturalist Secondary Data Explorer](https://ktorres23.github.io/ecology-vibe-coding/pages/secondary_explorer.html)
 
 **Purpose**: explore the use of CLIP models for exploring secondary data in iNaturalist image observations
@@ -76,13 +73,19 @@ To run this project locally, you need to:
 * Set server in your terminal: `python -m http.server 8000`
 * Open the site: `http://localhost:8000/pages/jobs.html`
 
-### [Local Image Annotator]()
+
+### [Insect Map Script with Rgbif Package](scripts/gbif_downloader.R)
+
+> **Main prompt**: using Rgbif, write an R script that downloads all aquatic insect species occurrence info from the GBIF API, including the taxon orders of Plecoptera, Trichoptera, and Ephemeroptera. Then make a map of the world with points highlighting occurrence data of each order in a different color.
+
+
+### [Local Image Annotator](scripts/local_image_annotator.py)
 
 **Purpose**: manually annotate images with labels that get saved to a CSV file
 
 > **Main prompt**: I need to develop some kind of interface for me to manually curate a dataset of labels based on another dataset of images. I want to go through my images and give them labels like "Adult", "nymph", "larvae", "hand", "other" etc. Then those labels should be corresponded with the image and observartions, which is the set of images they belong to. Can you create this interface for me? Please ask questions for clarification if needed. I attached the R script I used to create the image directories and file naming conventions of the images and observations. I'd also like the interface to tell me which image and observation and species I'm on, as well as whether I've already labelled it 
 
-### [Local Image Cropper]()
+### [Local Image Cropper](scripts/local_image_cropper.py)
 
 **Purpose**: Rename images copied from my camera and allow me to quickly crop them in my web browser
 
