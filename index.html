@@ -23,6 +23,15 @@
       text-align: center;
     }
 
+    .section-title {
+      color: #6c0633;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+      border-bottom: 1px solid #7d5a3e40;
+      padding-bottom: 0.5rem;
+    }
+
     .project-list {
       list-style: none;
       padding: 0;
@@ -49,6 +58,28 @@
       transform: scale(1.05);
       z-index: 1;
     }
+
+    /* Special Sidebar Box for Local Projects */
+    .sidebar-local {
+      background-color: #7d5a3e;
+      border-radius: 8px;
+      margin-top: 20px;
+      list-style: none;
+      text-align: center;
+      transition: background 0.2s;
+    }
+
+    .sidebar-local a {
+      color: #ffffff !important; /* Forces text to be white to contrast the box */
+      font-weight: bold;
+      display: block;
+      padding: 10px;
+      text-decoration: none;
+    }
+
+    .sidebar-local:hover {
+      background-color: #6c0633;
+    }
   </style>
 </head>
 
@@ -66,10 +97,11 @@
     <ul>
       <li><a href="index.html">Home</a></li>
       <li><a href="pages/inat_query.html">iNaturalist Query Tool</a></li>
-      <li><a href="pages/jobs.html">TAMU Ecology Jobs</a></li>
       <li><a href="pages/image_sorter.html">iNaturalist Annotator Tool</a></li>
-      <li><a href="../pages/secondary_explorer.html">Secondary Data Explorer</a></li>
-      <li><a href="#">More projects soon</a></li>
+      <li><a href="pages/secondary_explorer.html">Secondary Data Explorer</a></li>
+      
+      <!-- Distinct box for locally hosted projects -->
+      <li class="sidebar-local"><a href="index.html#local-projects">Locally Hosted Projects</a></li>
     </ul>
   </div>
   <!-- Site header -->
@@ -82,22 +114,34 @@
     <div class="projects-box">
       <h2>List of Projects</h2>
       <p>Click on a project below to explore simple tools created by vibe coding for ecological research.</p>
+      
+      <!-- Web-Based Projects List -->
+      <h3 class="section-title">Web-Based Projects</h3>
       <ul class="project-list">
         <li class="project-item" onclick="location.href='pages/inat_query.html'" tabindex="0" role="link"
           aria-label="iNaturalist Query Tool">iNaturalist Query Tool</li>
-        <li class="project-item" onclick="location.href='pages/jobs.html'" tabindex="0" role="link" aria-label="jobs">
-          TAMU Ecology Jobs</li>
         <li class="project-item" onclick="location.href='pages/image_sorter.html'" tabindex="0" role="link"
-          aria-label="jobs">iNaturalist Annotator Tool</li>
-        <li class="project-item" onclick="location.href='scripts/gbif_downloader.R'" tabindex="0" role="link"
-          aria-label="jobs">Insect Map Script with Rgbif Package [Click to download script]</li>
+          aria-label="iNaturalist Annotator Tool">iNaturalist Annotator Tool</li>
         <li class="project-item" onclick="location.href='pages/secondary_explorer.html'" tabindex="0" role="link"
-          aria-label="jobs">iNaturalist Secondary Data Explorer</li>
-        <li class="project-item"><i>More projects coming soon...</i></li>
+          aria-label="iNaturalist Secondary Data Explorer">iNaturalist Secondary Data Explorer</li>
         <li class="project-item" onclick="location.href='pages/template.html'" tabindex="0" role="link"
-          aria-label="template">template</li>
-
+          aria-label="template">Template</li>
       </ul>
+
+      <!-- Locally-Hosted Projects List -->
+      <h3 class="section-title" id="local-projects">Locally-Hosted Projects</h3>
+      <ul class="project-list">
+        <li class="project-item" onclick="location.href='pages/jobs.html'" tabindex="0" role="link" aria-label="TAMU Ecology Jobs">
+          TAMU Ecology Jobs</li>
+        <li class="project-item" onclick="location.href='scripts/gbif_downloader.R'" tabindex="0" role="link"
+          aria-label="Download Insect Map Script">Insect Map Script with Rgbif Package [Click to download script]</li>
+        <li class="project-item" onclick="location.href='scripts/local_image_annotator.py'" tabindex="0" role="link"
+          aria-label="Local Image Annotator">Local Image Annotator</li>
+        <li class="project-item" onclick="location.href='scripts/local_image_cropper.py'" tabindex="0" role="link"
+          aria-label="Local Image Cropper">Local Image Cropper</li>
+        <li class="project-item" style="cursor: default;"><i>More projects coming soon...</i></li>
+      </ul>
+
     </div>
   </main>
 
@@ -112,7 +156,5 @@
       rel="noopener">Scholar</a>
   </footer>
 </body>
-
-
 
 </html>

@@ -4,28 +4,30 @@ A goofy little repo hosted as a [webpage](https://ktorres23.github.io/ecology-vi
 
 ## Projects
 
-* [iNaturalist Query Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/inat_query.html)
-* [TAMU Ecology Jobs](https://ktorres23.github.io/ecology-vibe-coding/pages/jobs.html)
-* [iNaturalist Annotator Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/image_sorter.html)
-* [Insect Map Script with Rgbif Package](scripts/gbif_downloader.R)
-* [iNaturalist Secondary Data Explorer](https://ktorres23.github.io/ecology-vibe-coding/pages/secondary_explorer.html)
+**Web-based** (i.e., hosted as a webpage that you can use, too!)
+
+* [iNaturalist Query Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/inat_query.html); [description](#inaturalist-query-tool)
+* [iNaturalist Web Annotator Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/image_sorter.html); [description](#inaturalist-annotator-tool)
+* [Insect Map Script with Rgbif Package](scripts/gbif_downloader.R); [description](#insect-map-script-with-rgbif-package)
+* [iNaturalist Secondary Data Explorer](https://ktorres23.github.io/ecology-vibe-coding/pages/secondary_explorer.html); [description](#inaturalist-secondary-data-explorer)
+
+**Locally-hosted** (i.e., must be run on your local computer's terminal and/or software)
+
+> [!IMPORTANT]
+> Note that you may need to change some of the path directory logic for these scripts
+
+* [TAMU Ecology Jobs](https://ktorres23.github.io/ecology-vibe-coding/pages/jobs.html); [description](#tamu-ecology-jobs)
+* [Local Image Annotator](scripts/local_image_annotator.py); [description](#local-image-annotator)
+* [Local Image Cropper](local_image_cropper.py); [description](#local-image-cropper)
 
 
+## Web-based Projects
 
 ### [iNaturalist Query Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/inat_query.html)
 
 **Purpose**: extract basic info on taxon via iNaturalist API
 
 Base script generated with [perplexity.ai](https://www.perplexity.ai/) and GitHub Copilot and manually fine-tuned to produce additional output parameters
-
-
-
-### [TAMU Ecology Jobs](https://ktorres23.github.io/ecology-vibe-coding/pages/jobs.html)
-
-**Purpose**: Revisualizes jobs from [Texas A&M Natural Resources Job Board](https://jobs.rwfm.tamu.edu/)
-
-> [!IMPORTANT] This project must be downloaded & ran locally- it does not work on a web page
-
 
 
 ### [iNaturalist Annotator Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/image_sorter.html)
@@ -41,11 +43,9 @@ Additional functionalities added:
 * 'blacklisting' previous observations that were annotated
 
 
-
 ### [Insect Map Script with Rgbif Package](scripts/gbif_downloader.R)
 
 > **Main prompt**: using Rgbif, write an R script that downloads all aquatic insect species occurrence info from the GBIF API, including the taxon orders of Plecoptera, Trichoptera, and Ephemeroptera. Then make a map of the world with points highlighting occurrence data of each order in a different color.
-
 
 
 ### [iNaturalist Secondary Data Explorer](https://ktorres23.github.io/ecology-vibe-coding/pages/secondary_explorer.html)
@@ -60,6 +60,35 @@ Additional functionalities added:
 * filtering observations by taxon, dates, places, user, quality grade, sample size
 * image observation preview before running CLIP predictions & confidence threshold slider
 * use of a higher performing CLIP model
+
+
+## Locally-hosted Projects
+
+### [TAMU Ecology Jobs](https://ktorres23.github.io/ecology-vibe-coding/pages/jobs.html)
+
+**Purpose**: Revisualizes jobs from [Texas A&M Natural Resources Job Board](https://jobs.rwfm.tamu.edu/)
+
+To run this project locally, you need to:
+
+* Clone this repo to access all the scripts relevant to this project
+* Install dependencies in your terminal: `python -m pip install flask flask-cors requests beautifulsoup4`
+* Start the backend in your terminal: `python backend.py`
+* Set server in your terminal: `python -m http.server 8000`
+* Open the site: `http://localhost:8000/pages/jobs.html`
+
+### [Local Image Annotator]()
+
+**Purpose**: manually annotate images with labels that get saved to a CSV file
+
+> **Main prompt**: I need to develop some kind of interface for me to manually curate a dataset of labels based on another dataset of images. I want to go through my images and give them labels like "Adult", "nymph", "larvae", "hand", "other" etc. Then those labels should be corresponded with the image and observartions, which is the set of images they belong to. Can you create this interface for me? Please ask questions for clarification if needed. I attached the R script I used to create the image directories and file naming conventions of the images and observations. I'd also like the interface to tell me which image and observation and species I'm on, as well as whether I've already labelled it 
+
+### [Local Image Cropper]()
+
+**Purpose**: Rename images copied from my camera and allow me to quickly crop them in my web browser
+
+> **Main prompt**: Similar to the streamlit image annotation interface we made earlier, I need an interface for processing the images that I take on my camera and upload to iNaturalist. I need to be able to:
+> - take images with " - Copy" in the file name and change to "_cropped"
+> - grab these crop images to be processed in an interface to let me crop them sequentially and individually and then save the image as that cropped version
 
 
 ### *More projects coming soon...*
