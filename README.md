@@ -69,8 +69,17 @@ Additional functionalities added:
 * See my [list of cool iNat tools hosted on GitHub repos](https://github.com/stars/KTorres23/lists/cool-inat-tools)
 * [iNatSpectro](https://www.inatspectro.org/development/): multi-browser extension designed to integrate high-resolution spectrograms directly into iNaturalist observation pages.
 
+## License & Citation
 
 ---
 **Contact:** Karina Torres ([karina.torres@siu.edu](mailto:karina.torres@siu.edu))  
 
-**Last updated:** 2026-05-14
+**Last updated:** 2026-05-23
+
+[![Creative Commons License](https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc-nd/4.0/)  
+This work is licensed under a [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](http://creativecommons.org/licenses/by-nc-nd/4.0/).
+
+> ### Citation Notice
+> **© 2026 Karina M. Torres.** All rights reserved.  
+> *If referencing any preliminary findings, code, or ideas from this repository, please cite as:*  
+> Torres, KM. "Ecology Vibe Coding." GitHub Repository, May 2026. URL: `https://github.com/ktorres23/ecology-vibe-coding`
