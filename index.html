@@ -12,7 +12,19 @@
   <!-- Specific styling for index.html -->
   <style>
     /* Project Box Styling */
-/* Project Box Styling */
+
+    /* Container to hold both boxes side-by-side */
+    .projects-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
     .projects-box {
       background: #ede5da;
       border-radius: 16px;
@@ -64,6 +76,17 @@
       z-index: 1;
     }
 
+    /* Responsive adjustment: Stack the boxes vertically on mobile screens */
+    @media (max-width: 768px) {
+      .projects-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .projects-box {
+        width: 100%;
+      }
+    }
+
   </style>
 </head>
 
@@ -96,7 +119,9 @@
   <!-- Main Site content -->
   <main style="flex: 1 0 auto;">
 
-<!-- Web-Based Projects Box -->
+  <div class="projects-container">
+
+  <!-- Web-Based Projects Box -->
     <div class="projects-box">
       <h2>Web-Based Projects</h2>
       <p>Click on a project below to explore simple tools created by vibe coding for ecological research.</p>
@@ -107,8 +132,8 @@
           aria-label="iNaturalist Annotator Tool">iNaturalist Annotator Tool</li>
         <li class="project-item" onclick="location.href='pages/secondary_explorer.html'" tabindex="0" role="link"
           aria-label="iNaturalist Secondary Data Explorer">iNaturalist Secondary Data Explorer</li>
-        <li class="project-item" onclick="location.href='pages/template.html'" tabindex="0" role="link"
-          aria-label="template">Template</li>
+        <!-- <li class="project-item" onclick="location.href='pages/template.html'" tabindex="0" role="link"
+          aria-label="template">Template</li> -->
       </ul>
     </div>
 
@@ -125,8 +150,9 @@
           aria-label="Local Image Annotator">Local Image Annotator</li>
         <li class="project-item" onclick="location.href='scripts/local_image_cropper.py'" tabindex="0" role="link"
           aria-label="Local Image Cropper">Local Image Cropper</li>
-        <li class="project-item" style="cursor: default;"><i>More projects coming soon...</i></li>
+        <!-- <li class="project-item" style="cursor: default;"><i>More projects coming soon...</i></li> -->
       </ul>
+    </div>
     </div>
   </main>
 
