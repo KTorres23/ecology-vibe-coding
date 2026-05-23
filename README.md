@@ -8,7 +8,6 @@ A goofy little repo hosted as a [webpage](https://ktorres23.github.io/ecology-vi
 
 * [iNaturalist Query Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/inat_query.html); [description](#inaturalist-query-tool)
 * [iNaturalist Web Annotator Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/image_sorter.html); [description](#inaturalist-annotator-tool)
-* [Insect Map Script with Rgbif Package](scripts/gbif_downloader.R); [description](#insect-map-script-with-rgbif-package)
 * [iNaturalist Secondary Data Explorer](https://ktorres23.github.io/ecology-vibe-coding/pages/secondary_explorer.html); [description](#inaturalist-secondary-data-explorer)
 
 **Locally-hosted** (i.e., must be run on your local computer's terminal and/or software)
@@ -17,6 +16,7 @@ A goofy little repo hosted as a [webpage](https://ktorres23.github.io/ecology-vi
 > Note that you may need to change some of the path directory logic for these scripts
 
 * [TAMU Ecology Jobs](https://ktorres23.github.io/ecology-vibe-coding/pages/jobs.html); [description](#tamu-ecology-jobs)
+* [Insect Map Script with Rgbif Package](scripts/gbif_downloader.R); [description](#insect-map-script-with-rgbif-package)
 * [Local Image Annotator](scripts/local_image_annotator.py); [description](#local-image-annotator)
 * [Local Image Cropper](local_image_cropper.py); [description](#local-image-cropper)
 
@@ -90,8 +90,6 @@ To run this project locally, you need to:
 > - take images with " - Copy" in the file name and change to "_cropped"
 > - grab these crop images to be processed in an interface to let me crop them sequentially and individually and then save the image as that cropped version
 
-
-### *More projects coming soon...*
 
 ## useful tools/projects related to iNaturalist by others:
 

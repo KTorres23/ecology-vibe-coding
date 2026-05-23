@@ -114,6 +114,28 @@ main {
     display: block;
 }
 
+/* Special Sidebar Box for Local Projects */
+.sidebar-local {
+    background-color: #7d5a3e;
+    border-radius: 8px;
+    margin-top: 20px;
+    list-style: none;
+    text-align: center;
+    transition: background 0.2s;
+}
+
+.sidebar-local a {
+    color: #ffffff !important; /* Forces text to be white to contrast the box */
+    font-weight: bold;
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+}
+
+.sidebar-local:hover {
+    background-color: #6c0633;
+}
+
 body {
     margin-left: 0;
     transition: margin-left 0.3s ease;

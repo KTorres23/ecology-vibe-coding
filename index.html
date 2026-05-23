@@ -59,27 +59,6 @@
       z-index: 1;
     }
 
-    /* Special Sidebar Box for Local Projects */
-    .sidebar-local {
-      background-color: #7d5a3e;
-      border-radius: 8px;
-      margin-top: 20px;
-      list-style: none;
-      text-align: center;
-      transition: background 0.2s;
-    }
-
-    .sidebar-local a {
-      color: #ffffff !important; /* Forces text to be white to contrast the box */
-      font-weight: bold;
-      display: block;
-      padding: 10px;
-      text-decoration: none;
-    }
-
-    .sidebar-local:hover {
-      background-color: #6c0633;
-    }
   </style>
 </head>
 
@@ -130,11 +109,12 @@
 
       <!-- Locally-Hosted Projects List -->
       <h3 class="section-title" id="local-projects">Locally-Hosted Projects</h3>
+      <p>Click on a project below to download its script. If you are redirected to a webpage, refer to the project's description in the <a href="https://github.com/KTorres23/ecology-vibe-coding#">repo's README</a>.</p>
       <ul class="project-list">
         <li class="project-item" onclick="location.href='pages/jobs.html'" tabindex="0" role="link" aria-label="TAMU Ecology Jobs">
           TAMU Ecology Jobs</li>
         <li class="project-item" onclick="location.href='scripts/gbif_downloader.R'" tabindex="0" role="link"
-          aria-label="Download Insect Map Script">Insect Map Script with Rgbif Package [Click to download script]</li>
+          aria-label="Download Insect Map Script">Insect Map Script with Rgbif Package</li>
         <li class="project-item" onclick="location.href='scripts/local_image_annotator.py'" tabindex="0" role="link"
           aria-label="Local Image Annotator">Local Image Annotator</li>
         <li class="project-item" onclick="location.href='scripts/local_image_cropper.py'" tabindex="0" role="link"
