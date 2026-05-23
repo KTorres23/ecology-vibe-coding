@@ -124,6 +124,65 @@
       background-color: #ccc;
       cursor: not-allowed;
     }
+
+    /* Top-Right Info Callout Styling */
+    .info-callout {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 280px;
+      background: #ffffff;
+      border-left: 4px solid #74ac00;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      padding: 15px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      z-index: 1000;
+      transition: all 0.2s ease;
+    }
+    .info-callout:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    .info-callout p {
+      margin: 0 0 10px 0;
+      color: #333;
+      line-height: 1.4;
+    }
+    .info-callout a {
+      color: #74ac00;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .info-callout a:hover {
+      text-decoration: underline;
+    }
+    .close-callout {
+      position: absolute;
+      top: 5px;
+      right: 8px;
+      background: none;
+      border: none;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #aaa;
+      padding: 0;
+      line-height: 1;
+    }
+    .close-callout:hover {
+      color: #333;
+    }
+    
+    /* Responsive adjustment for small screens */
+    @media (max-width: 768px) {
+      .info-callout {
+        position: relative;
+        top: 0;
+        right: 0;
+        width: auto;
+        margin-bottom: 20px;
+      }
+    }
   </style>
 </head>
 
@@ -143,6 +202,13 @@
       <li><a href="../pages/secondary_explorer.html">Secondary Data Explorer</a></li>
       <li><a href="#">More projects soon</a></li>
     </ul>
+  </div>
+
+  <!-- Top-Right Info Callout -->
+  <div class="info-callout" id="infoCallout">
+    <button class="close-callout" onclick="document.getElementById('infoCallout').style.display='none'" title="Close">&times;</button>
+    <p>Want to learn more about <strong>secondary data</strong>, why we use it, and current research on automating secondary data extraction?</p>
+    <a href="https://ktorres23.github.io/secondary-data/" target="_blank">Read the full breakdown →</a>
   </div>
 
   <header>
