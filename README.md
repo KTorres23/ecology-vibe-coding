@@ -98,6 +98,7 @@ To run this project locally, you need to:
 
 * See my [list of cool iNat tools hosted on GitHub repos](https://github.com/stars/KTorres23/lists/cool-inat-tools)
 * [iNatSpectro](https://www.inatspectro.org/development/): multi-browser extension designed to integrate high-resolution spectrograms directly into iNaturalist observation pages.
+* [iNaturalist Metadata Tool](https://chromewebstore.google.com/detail/inaturalist-metadata-tool/kgnajdmgemhinploocjifefdcbomdfph?pli=1) ([iNat forum post](https://forum.inaturalist.org/t/official-release-of-the-inaturalist-metadata-tool/79300))
 
 ## License & Citation
 
