@@ -35,7 +35,12 @@ function categorizeJob(job) {
     if (text.includes('postdoc') || text.includes('post-doc')) {
         return 'Postdoc';
     }
+    if(text.includes ('technician')) {
+        return 'Technician';
+    }
     return 'Full-time';
+
+
 }
 
 // Get unique locations from jobs
@@ -56,7 +61,7 @@ function renderFilters(jobs) {
     const filterContainer = document.getElementById('filter-container');
     if (!filterContainer) return;
     
-    const categories = ['All', 'Full-time', 'Internship', 'Graduate', 'Postdoc'];
+    const categories = ['All', 'Full-time', 'Internship', 'Graduate', 'Postdoc', 'Technician'];
     const locations = ['All States', ...getLocations(jobs)];
     
     // Category buttons
