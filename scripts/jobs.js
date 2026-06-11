@@ -29,14 +29,17 @@ function categorizeJob(job) {
     if (text.includes('internship') || text.includes('intern')) {
         return 'Internship';
     }
-    if (text.includes('graduate') || text.includes('graduate teaching') || text.includes('m.s.') || text.includes('ph.d.') || text.includes('mastership')) {
+    if (text.includes('graduate') || text.includes('graduate teaching') || text.includes('m.s.') || text.includes('ms') || text.includes('phd') || text.includes('ph.d.') || text.includes('mastership')) {
         return 'Graduate';
     }
     if (text.includes('postdoc') || text.includes('post-doc')) {
         return 'Postdoc';
     }
-    if(text.includes ('technician')) {
+    if(text.includes ('technician') || text.includes('tech')) {
         return 'Technician';
+    }
+    if(text.includes('professor') || text.includes('faculty')){
+        return 'Professor';
     }
     return 'Full-time';
 
@@ -61,7 +64,7 @@ function renderFilters(jobs) {
     const filterContainer = document.getElementById('filter-container');
     if (!filterContainer) return;
     
-    const categories = ['All', 'Full-time', 'Internship', 'Graduate', 'Postdoc', 'Technician'];
+    const categories = ['All', 'Full-time', 'Internship', 'Graduate', 'Postdoc', 'Technician', 'Professor'];
     const locations = ['All States', ...getLocations(jobs)];
     
     // Category buttons

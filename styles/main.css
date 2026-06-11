@@ -270,6 +270,17 @@ body {
     color: #383d41;
 }
 
+
+.badge-technician {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.badge-professor {
+    background: #f8d7da;
+    color: #721c24;
+}
+
 .job-card h3 {
     margin: 0 0 0.5rem 0;
     font-size: 1.1rem;
