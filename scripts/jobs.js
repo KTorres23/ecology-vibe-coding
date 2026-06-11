@@ -29,6 +29,12 @@ function categorizeJob(job) {
     if (text.includes('internship') || text.includes('intern')) {
         return 'Internship';
     }
+    if (text.includes('technician') || text.includes('tech')) {
+        return 'Technician';
+    }
+    if (text.includes('professor') || text.includes('faculty')) {
+        return 'Professor';
+    }
     if (text.includes('graduate') || text.includes('graduate teaching') || text.includes('m.s.') || text.includes('ph.d.') || text.includes('mastership')) {
         return 'Graduate';
     }
@@ -56,7 +62,7 @@ function renderFilters(jobs) {
     const filterContainer = document.getElementById('filter-container');
     if (!filterContainer) return;
     
-    const categories = ['All', 'Full-time', 'Internship', 'Graduate', 'Postdoc'];
+    const categories = ['All', 'Full-time', 'Internship', 'Technician', 'Professor', 'Graduate', 'Postdoc'];
     const locations = ['All States', ...getLocations(jobs)];
     
     // Category buttons
