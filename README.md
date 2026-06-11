@@ -11,7 +11,7 @@ Click on the *name* of the tool below to try it out, or click on the *descriptio
 * [iNaturalist Query Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/inat_query.html); [description](#inaturalist-query-tool)
 * [iNaturalist Web Annotator Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/image_sorter.html); [description](#inaturalist-annotator-tool)
 * [iNaturalist Secondary Data Explorer](https://ktorres23.github.io/ecology-vibe-coding/pages/secondary_explorer.html); [description](#inaturalist-secondary-data-explorer)
-* [TAMU Ecology Jobs](https://ktorres23.github.io/ecology-vibe-coding/pages/jobs.html); [description](#tamu-ecology-jobs) ⭐ **NEW: No backend needed! Auto-updated via GitHub Actions**
+* [TAMU Ecology Jobs](https://ktorres23.github.io/ecology-vibe-coding/pages/jobs.html); [description](#tamu-ecology-jobs)
 
 **Locally-hosted** (i.e., must be run on your local computer's terminal and/or software)
 
@@ -63,7 +63,7 @@ Additional functionalities added:
 
 ### [TAMU Ecology Jobs](https://ktorres23.github.io/ecology-vibe-coding/pages/jobs.html)
 
-**Purpose**: Revisualizes jobs from [Texas A&M Natural Resources Job Board](https://jobs.rwfm.tamu.edu/)
+**Purpose**: Revisualizes jobs from [Texas A&M Natural Resources Job Board](https://jobs.rwfm.tamu.edu/). Initial locally-hosted project was remade into a web-hosted version using a GitHub Copilot agent.
 
 **How it works:**
 * A GitHub Action automatically runs a Python scraper **twice daily** (8 AM & 4 PM UTC)
@@ -113,8 +113,8 @@ Additional functionalities added:
 
 **Last updated:** 2026-05-23
 
-[![Creative Commons License](https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc-nd/4.0/)  
-This work is licensed under a [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License](http://creativecommons.org/licenses/by-nc-nd/4.0/).
+[![Creative Commons License](https://i.creativecommons.org/l/by-nc/4.0/88x31.png)](http://creativecommons.org/licenses/by-nc/4.0/)  
+This work is licensed under a [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/).
 
 > ### Citation Notice
 > **© 2026 Karina M. Torres.** All rights reserved.  
