@@ -9,17 +9,24 @@ let filteredJobs = [];
 function extractLocation(locationStr) {
     if (!locationStr) return 'Location TBA';
     
+    // Remove tags section and timestamps
+    let cleaned = locationStr
+        .split(/\s*Tags?:/i)[0]  // Remove "Tags:" section
+        .split(/\d+\s*(hours?|days?|weeks?)\s*ago/i)[0]  // Remove timestamps
+        .split(/\s+View\s*$/i)[0]  // Remove trailing "View" button text
+        .trim();
+    
     // Extract city, state pattern from parentheses like "(City, State)"
-    const stateMatch = locationStr.match(/\(([^,]+),\s*([^)]+)\)/);
+    const stateMatch = cleaned.match(/\(([^,]+),\s*([^)]+)\)/);
     if (stateMatch) {
         const city = stateMatch[1].trim();
         const state = stateMatch[2].trim();
         return `${city}, ${state}`;
     }
     
-    // Fallback: take first part before timestamp
-    const parts = locationStr.split(/\d+\s*(hours?|days?|weeks?)\s*ago/i);
-    return parts[0].trim() || 'Location TBA';
+    // Fallback: take cleaned string up to first parenthesis or return as-is
+    const beforeParen = cleaned.split('(')[0].trim();
+    return beforeParen || 'Location TBA';
 }
 
 // Auto-categorize jobs based on title and description
@@ -29,21 +36,19 @@ function categorizeJob(job) {
     if (text.includes('internship') || text.includes('intern')) {
         return 'Internship';
     }
-    if (text.includes('graduate') || text.includes('graduate teaching') || text.includes('m.s.') || text.includes('ms') || text.includes('phd') || text.includes('ph.d.') || text.includes('mastership')) {
+    if (text.includes('technician') || text.includes('tech')) {
+        return 'Technician';
+    }
+    if (text.includes('professor') || text.includes('faculty')) {
+        return 'Professor';
+    }
+    if (text.includes('graduate') || text.includes('graduate teaching') || text.includes('m.s.') || text.includes('ph.d.') || text.includes('mastership')) {
         return 'Graduate';
     }
     if (text.includes('postdoc') || text.includes('post-doc')) {
         return 'Postdoc';
     }
-    if(text.includes ('technician') || text.includes('tech')) {
-        return 'Technician';
-    }
-    if(text.includes('professor') || text.includes('faculty')){
-        return 'Professor';
-    }
     return 'Full-time';
-
-
 }
 
 // Get unique locations from jobs
@@ -64,7 +69,7 @@ function renderFilters(jobs) {
     const filterContainer = document.getElementById('filter-container');
     if (!filterContainer) return;
     
-    const categories = ['All', 'Full-time', 'Internship', 'Graduate', 'Postdoc', 'Technician', 'Professor'];
+    const categories = ['All', 'Full-time', 'Internship', 'Technician', 'Professor', 'Graduate', 'Postdoc'];
     const locations = ['All States', ...getLocations(jobs)];
     
     // Category buttons
