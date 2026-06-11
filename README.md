@@ -11,13 +11,13 @@ Click on the *name* of the tool below to try it out, or click on the *descriptio
 * [iNaturalist Query Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/inat_query.html); [description](#inaturalist-query-tool)
 * [iNaturalist Web Annotator Tool](https://ktorres23.github.io/ecology-vibe-coding/pages/image_sorter.html); [description](#inaturalist-annotator-tool)
 * [iNaturalist Secondary Data Explorer](https://ktorres23.github.io/ecology-vibe-coding/pages/secondary_explorer.html); [description](#inaturalist-secondary-data-explorer)
+* [TAMU Ecology Jobs](https://ktorres23.github.io/ecology-vibe-coding/pages/jobs.html); [description](#tamu-ecology-jobs) ⭐ **NEW: No backend needed! Auto-updated via GitHub Actions**
 
 **Locally-hosted** (i.e., must be run on your local computer's terminal and/or software)
 
 > [!IMPORTANT]
 > Note that you may need to change some of the path directory logic for these scripts
 
-* [TAMU Ecology Jobs](https://ktorres23.github.io/ecology-vibe-coding/pages/jobs.html); [description](#tamu-ecology-jobs)
 * [Insect Map Script with Rgbif Package](scripts/gbif_downloader.R); [description](#insect-map-script-with-rgbif-package)
 * [Local Image Annotator](scripts/local_image_annotator.py); [description](#local-image-annotator)
 * [Local Image Cropper](local_image_cropper.py); [description](#local-image-cropper)
@@ -65,13 +65,19 @@ Additional functionalities added:
 
 **Purpose**: Revisualizes jobs from [Texas A&M Natural Resources Job Board](https://jobs.rwfm.tamu.edu/)
 
-To run this project locally, you need to:
+**How it works:**
+* A GitHub Action automatically runs a Python scraper **twice daily** (8 AM & 4 PM UTC)
+* Jobs are scraped and saved to `jobs.json` in the repository
+* The webpage loads `jobs.json` and displays jobs in a beautiful dashboard
+* **No backend server needed!** Works on any static web host (GitHub Pages, etc.)
 
-* Clone this repo to access all the scripts relevant to this project
-* Install dependencies in your terminal: `python -m pip install flask flask-cors requests beautifulsoup4`
-* Start the backend in your terminal: `python backend.py`
-* Set server in your terminal: `python -m http.server 8000`
-* Open the site: `http://localhost:8000/pages/jobs.html`
+**To use this project:**
+* Simply visit the link above and browse available ecology jobs
+* The job list updates automatically every 8 hours
+
+**To run locally:**
+* Clone this repo and open `pages/jobs.html` in your browser (or run `python -m http.server 8000` and navigate to `http://localhost:8000/pages/jobs.html`)
+* The `jobs.json` file is automatically kept fresh by GitHub Actions in the cloud
 
 
 ### [Insect Map Script with Rgbif Package](scripts/gbif_downloader.R)
