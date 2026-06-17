@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iNaturalist & PAD-US Geovisualizer</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-hover: #1b5e20;
+            --bg-glass: rgba(255, 255, 255, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.3);
+            --text-main: #333;
+            --text-muted: #666;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 24px;
+            width: 320px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        p.desc {
+            margin: 0 0 20px 0;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        input[type="text"] {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: #9e9e9e;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #status {
+            margin-top: 16px;
+            font-size: 0.875rem;
+            color: var(--text-main);
+            font-weight: 600;
+            display: none;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Popup Styling */
+        .leaflet-popup-content {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .popup-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0 0 4px 0;
+            color: var(--text-main);
+        }
+
+        .popup-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0 0 8px 0;
+        }
+
+        .popup-img {
+            width: 100%;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .popup-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .popup-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Legend */
+        .legend {
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+
+        .legend h4 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="control-panel">
+        <h1>Nature Mapper</h1>
+        <p class="desc">Visualize an iNaturalist user's observations over protected lands (PAD-US).</p>
+
+        <div class="input-group">
+            <input type="text" id="username" placeholder="iNaturalist Username" autocomplete="off">
+            <button id="fetch-btn">Map Observations</button>
+        </div>
+
+        <div id="status">
+            <span id="spinner" class="spinner"
+                style="display: none; border-top-color: var(--primary-color); border-color: rgba(46,125,50,0.3);"></span>
+            <span id="status-text"></span>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        // Initialize Map (Centered on US)
+        const map = L.map('map').setView([39.8283, -98.5795], 4);
+
+        // Base Map (CartoDB Positron for a clean look)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        // PAD-US WMS Layer (Protection Status by GAP Status Code)
+        // Layer 0 is usually the main layer for this service
+        const padusWmsUrl = 'https://gis1.usgs.gov/arcgis/services/padus3/Protection_Status_by_GAP_Status_Code/MapServer/WMSServer';
+        const padusLayer = L.tileLayer.wms(padusWmsUrl, {
+            layers: '0',
+            format: 'image/png',
+            transparent: true,
+            opacity: 0.6,
+            attribution: 'USGS PAD-US'
+        }).addTo(map);
+
+        // Custom Marker Icon for iNat points
+        const inatIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style="background-color: var(--primary-color); width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></div>`,
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+        });
+
+        let markersLayer = L.layerGroup().addTo(map);
+
+        // UI Elements
+        const fetchBtn = document.getElementById('fetch-btn');
+        const usernameInput = document.getElementById('username');
+        const statusDiv = document.getElementById('status');
+        const statusText = document.getElementById('status-text');
+        const spinner = document.getElementById('spinner');
+
+        async function fetchAllObservations(username) {
+            markersLayer.clearLayers();
+
+            let page = 1;
+            const perPage = 200;
+            let totalFetched = 0;
+            let totalExpected = 0;
+            let hasMore = true;
+            let allObs = [];
+
+            // UI Update
+            fetchBtn.disabled = true;
+            statusDiv.style.display = 'block';
+            spinner.style.display = 'inline-block';
+            statusText.textContent = `Fetching observations for ${username}...`;
+
+            try {
+                while (hasMore) {
+                    const url = `https://api.inaturalist.org/v1/observations?user_id=${username}&per_page=${perPage}&page=${page}&has_geo=true`;
+                    const response = await fetch(url);
+
+                    if (!response.ok) {
+                        throw new Error(`Error: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (page === 1) {
+                        totalExpected = data.total_results;
+                        if (totalExpected === 0) {
+                            statusText.textContent = "No georeferenced observations found for this user.";
+                            break;
+                        }
+                    }
+
+                    const results = data.results;
+                    allObs = allObs.concat(results);
+                    totalFetched += results.length;
+
+                    statusText.textContent = `Fetched ${totalFetched} of ${totalExpected} observations...`;
+
+                    if (results.length < perPage) {
+                        hasMore = false;
+                    } else {
+                        page++;
+                    }
+                }
+
+                if (allObs.length > 0) {
+                    statusText.textContent = `Mapping ${allObs.length} points...`;
+
+                    let bounds = L.latLngBounds();
+
+                    allObs.forEach(obs => {
+                        if (obs.location) {
+                            const [lat, lng] = obs.location.split(',').map(Number);
+
+                            // Popup Content
+                            let imgHtml = '';
+                            if (obs.photos && obs.photos.length > 0) {
+                                const photoUrl = obs.photos[0].url.replace('square', 'medium');
+                                imgHtml = `<img src="${photoUrl}" class="popup-img" alt="Observation Photo">`;
+                            }
+
+                            const speciesName = obs.taxon ? (obs.taxon.preferred_common_name || obs.taxon.name) : 'Unknown Species';
+                            const scientificName = obs.taxon ? obs.taxon.name : '';
+                            const dateObs = obs.observed_on ? new Date(obs.observed_on).toLocaleDateString() : 'Unknown Date';
+
+                            const popupContent = `
+                                ${imgHtml}
+                                <h3 class="popup-title">${speciesName}</h3>
+                                <p class="popup-meta"><em>${scientificName}</em></p>
+                                <p class="popup-meta">Observed: ${dateObs}</p>
+                                <a href="${obs.uri}" target="_blank" class="popup-link">View on iNaturalist &rarr;</a>
+                            `;
+
+                            const marker = L.marker([lat, lng], { icon: inatIcon })
+                                .bindPopup(popupContent, { minWidth: 200 });
+
+                            markersLayer.addLayer(marker);
+                            bounds.extend([lat, lng]);
+                        }
+                    });
+
+                    if (bounds.isValid()) {
+                        map.fitBounds(bounds, { padding: [50, 50] });
+                    }
+
+                    statusText.textContent = `Successfully mapped ${allObs.length} observations.`;
+                }
+
+            } catch (err) {
+                console.error(err);
+                statusText.textContent = err.message || "An error occurred fetching data.";
+                statusText.style.color = '#d32f2f';
+            } finally {
+                fetchBtn.disabled = false;
+                spinner.style.display = 'none';
+                if (!statusText.textContent.startsWith('Error')) {
+                    statusText.style.color = 'var(--text-main)';
+                    setTimeout(() => {
+                        if (!fetchBtn.disabled) statusDiv.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        }
+
+        // Event Listeners
+        fetchBtn.addEventListener('click', () => {
+            const username = usernameInput.value.trim();
+            if (username) {
+                fetchAllObservations(username);
+            }
+        });
+
+        usernameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const username = usernameInput.value.trim();
+                if (username) {
+                    fetchAllObservations(username);
+                }
+            }
+        });
+
+        // Add a simple legend for PAD-US
+        const legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = `
+                <h4>PAD-US GAP Status</h4>
+                <div class="legend-item"><div class="legend-color" style="background: #38a800;"></div> Status 1: Managed for biodiversity (Strict)</div>
+                <div class="legend-item"><div class="legend-color" style="background: #8bc34a;"></div> Status 2: Managed for biodiversity (Relaxed)</div>
+                <div class="legend-item"><div class="legend-color" style="background: #cddc39;"></div> Status 3: Managed for multiple uses</div>
+                <div class="legend-item"><div class="legend-color" style="background: #ffeb3b;"></div> Status 4: No known mandate</div>
+            `;
+            return div;
+        };
+        legend.addTo(map);
+
+    </script>
+</body>
+
+</html>
