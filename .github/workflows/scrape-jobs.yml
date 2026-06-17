@@ -1,33 +1,33 @@
-name: Scrape TAMU Jobs
+# name: Scrape TAMU Jobs
 
-on:
-  schedule:
-    # Run at 8:00 AM and 4:00 PM UTC (adjust times as needed)
-    - cron: '0 8,16 * * *'
-  workflow_dispatch: # Allow manual triggering from GitHub UI
+# on:
+#   schedule:
+#     # Run at 8:00 AM and 4:00 PM UTC (adjust times as needed)
+#     - cron: '0 8,16 * * *'
+#   workflow_dispatch: # Allow manual triggering from GitHub UI
 
-jobs:
-  scrape:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+# jobs:
+#   scrape:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
       
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+#       - name: Set up Python
+#         uses: actions/setup-python@v4
+#         with:
+#           python-version: '3.11'
       
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests beautifulsoup4
+#       - name: Install dependencies
+#         run: |
+#           python -m pip install --upgrade pip
+#           pip install requests beautifulsoup4
       
-      - name: Run scraper
-        run: python scrape_jobs.py
+#       - name: Run scraper
+#         run: python scrape_jobs.py
       
-      - name: Commit and push changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add jobs.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update jobs.json - $(date -u +'%Y-%m-%d %H:%M:%S UTC')" && git push)
+#       - name: Commit and push changes
+#         run: |
+#           git config --local user.email "action@github.com"
+#           git config --local user.name "GitHub Action"
+#           git add jobs.json
+#           git diff --quiet && git diff --staged --quiet || (git commit -m "Update jobs.json - $(date -u +'%Y-%m-%d %H:%M:%S UTC')" && git push)
